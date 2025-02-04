@@ -42,24 +42,28 @@ exports.getDomainDetails = async (req, res) => {
   const dnsRecordsResponse = await API_GET_DOMAIN_RECORDS(domainId);
   const dnsRecords = Array.isArray(dnsRecordsResponse.records) ? dnsRecordsResponse.records : [];
 
+  console.log("--------------")
   console.log("dnRecrods ", dnsRecords)
+  console.log("--------------")
 
      // Filtern der relevanten Subdomains
-  const subdomains = [...new Set(
-    dnsRecords
-        .map(record => record.name)
-        .filter(name => 
-            name.endsWith(`.${domainName}`) && 
-            !name.startsWith("_") && 
-            !name.includes("www") && 
-            !name.includes("autodiscover") && 
-            !name.includes("domainkey")
-        )
+     const subdomains = [...new Set(
+      dnsRecords
+          .map(record => record.name)
+          .filter(name => {
+              const isSubdomain = name !== domainName && name.endsWith(`.${domainName}`);
+              return isSubdomain &&
+                     !name.startsWith("_") &&
+                     !name.includes("www") &&
+                     !name.includes("autodiscover") &&
+                     !name.includes("domainkey") &&
+                     !name.includes("bimi");
+          })
   )];
+
   console.log("subdomains gefiltert: ", subdomains)
 
-  
-  res.render("subdomains", { dnsRecords: dnsRecords.records, domainName, subdomains });
+  res.render("subdomains", { dnsRecords, domainName, subdomains });
 };
 
 
