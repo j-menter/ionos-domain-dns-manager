@@ -9,6 +9,7 @@ app.set("view engine", "ejs");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/js", express.static(path.join(__dirname, "node_modules", "jquery", "dist"))); // jquery
 app.use("/js", express.static(path.join(__dirname, "node_modules", "bootstrap", "dist", "js"))); // bootstrap
 app.use("/css", express.static(path.join(__dirname, "node_modules", "bootstrap", "dist", "css"))); // bootstrap
 app.use("/", express.static(path.join(__dirname, "node_modules", "bootstrap-table", "dist"))); // bootstrap-table
@@ -20,7 +21,9 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/", authRoutes); // alle nutzer
 // app.use("/admin", adminRoutes); // nur admins
 
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server läuft auf Port http://localhost:${PORT}`);
+    console.log(`${new Date().toLocaleTimeString()} Server läuft auf Port http://localhost:${PORT}`);
 });
