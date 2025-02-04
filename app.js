@@ -9,7 +9,10 @@ app.set("view engine", "ejs");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-
+app.use("/js", express.static(path.join(__dirname, "node_modules", "bootstrap", "dist", "js"))); // bootstrap
+app.use("/css", express.static(path.join(__dirname, "node_modules", "bootstrap", "dist", "css"))); // bootstrap
+app.use("/", express.static(path.join(__dirname, "node_modules", "bootstrap-table", "dist"))); // bootstrap-table
+app.use("/font", express.static(path.join(__dirname, "node_modules", "bootstrap-icons", "font"))); // bootstrap-icons
 
 
 const authRoutes = require("./routes/authRoutes");
