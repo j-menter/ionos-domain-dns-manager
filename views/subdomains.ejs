@@ -22,7 +22,8 @@
                        class="table table-striped"
                        data-toggle="table"
                        data-search="true"
-                       data-pagination="true">
+                       data-pagination="true"
+                       data-filter-control="true">
                     <thead>
                         <tr>
                             <th data-field="name" data-sortable="true">Name</th>
@@ -63,51 +64,49 @@
     </div>
 
     <script>
-      // Stelle sicher, dass `dnsRecords` vom Server als JSON verfügbar ist
+      // Stelle sicher, dass dnsRecords vom Server als JSON verfügbar ist
       const dnsRecords = <%- JSON.stringify(dnsRecords || []) %>;
       console.log("DNS Records im Frontend geladen:", dnsRecords);
   </script>
     <script>
-      // Stelle sicher, dass `dnsRecords` vom Server als JSON verfügbar ist
+      // Stelle sicher, dass dnsRecords vom Server als JSON verfügbar ist
       const subdomains = <%- JSON.stringify(subdomains || []) %>;
       console.log("DNS Records im Frontend geladen:", subdomains);
   </script>
-  
-  <script>
-      document.addEventListener("DOMContentLoaded", function() {
-          const subdomainFilter = document.getElementById("subdomainFilter");
-          const dnsTable = $('#dnsTable');
-  
-          if (subdomainFilter) {
-              subdomainFilter.addEventListener("change", function() {
-                  const selectedSubdomain = this.value ? this.value.toLowerCase() : "";
-                  console.log("Ausgewählte Subdomain:", selectedSubdomain);
-  
-                  if (selectedSubdomain === "") {
-                      // Zeige alle DNS-Einträge
-                      dnsTable.bootstrapTable('load', dnsRecords);
-                  } else {
-                      // Filtere nur Einträge der ausgewählten Subdomain
-                      const filteredRecords = dnsRecords.filter(record => record.name.toLowerCase() === selectedSubdomain);
-                      console.log("Gefilterte Einträge:", filteredRecords);
-                      dnsTable.bootstrapTable('load', filteredRecords);
-                  }
-              });
-          }
 
-  
-          try {
-              console.log("Versuche, Bootstrap Table zu initialisieren...");
-              dnsTable.bootstrapTable({
-                  data: dnsRecords
-              });
-              console.log("Bootstrap Table erfolgreich initialisiert.");
-          } catch (error) {
-              console.error("Fehler bei der Bootstrap Table-Initialisierung:", error);
-          }
-      });
-  </script>
-  
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const subdomainFilter = document.getElementById("subdomainFilter");
+            const dnsTable = $('#dnsTable');
 
-  </body>
+            if (subdomainFilter) {
+                subdomainFilter.addEventListener("change", function() {
+                    const selectedSubdomain = this.value ? this.value.toLowerCase() : "";
+                    console.log("Ausgewählte Subdomain:", selectedSubdomain);
+                    
+                    if (selectedSubdomain === "") {
+                        // Alle Einträge anzeigen
+                        dnsTable.bootstrapTable('load', dnsRecords);
+                    } else {
+                        // Filtere nur Einträge, die die Subdomain enthalten
+                        const filteredRecords = dnsRecords.filter(record => record.name.toLowerCase().includes(selectedSubdomain));
+                        console.log("Gefilterte Einträge:", filteredRecords);
+                        dnsTable.bootstrapTable('load', filteredRecords);
+                    }
+                });
+            }
+
+            try {
+                console.log("Versuche, Bootstrap Table zu initialisieren...");
+                dnsTable.bootstrapTable({
+                    data: dnsRecords,
+                    filterControl: true
+                });
+                console.log("Bootstrap Table erfolgreich initialisiert.");
+            } catch (error) {
+                console.error("Fehler bei der Bootstrap Table-Initialisierung:", error);
+            }
+        });
+    </script>
+</body>
 </html>
