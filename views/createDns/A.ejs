@@ -4,7 +4,7 @@
     <h1 class="text-center mb-4">DNS-Record hinzufügen</h1>
     
     <div class="form-container">
-        <form action="/domain/<%= domain %>/createDns" method="POST">
+        <form action="/domain/<%= domain %>/createDns/A" method="POST">
             <div class="form-group">
                 <label for="recordType">Typ</label>
                 <input type="text" id="recordType" name="type" class="form-control" value="A" readonly>
