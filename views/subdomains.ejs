@@ -1,112 +1,119 @@
 <%- include('partials/header') -%>
-    <div class="container mt-4">
-        <h1 class="text-center">Detailansicht <%= domainName %></h1>
-        <a href="/" class="btn btn-primary btn-sm">
-          Zurück
-        </a>
+<div class="container mt-4">
+  <h1 class="text-center">Detailansicht <%= domainName %></h1>
+  <a href="/" class="btn btn-primary btn-sm">Zurück</a>
 
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <h3>Subdomain auswählen</h3>
-                <select id="subdomainFilter" class="form-select">
-                    <option value="">Alle anzeigen</option>
-                    <% if (subdomains && subdomains.length) { %>
-                        <% subdomains.forEach(subdomain => { %>
-                            <option value="<%= subdomain %>"><%= subdomain %></option>
-                        <% }); %>
-                    <% } %>
-                </select>
-                
-                <h3 class="mt-3">DNS Einträge</h3>
-                <table id="dnsTable" 
-                       class="table table-striped"
-                       data-toggle="table"
-                       data-search="true"
-                       data-pagination="true"
-                       data-filter-control="true">
-                    <thead>
-                        <tr>
-                            <th data-field="name" data-sortable="true">Name</th>
-                            <th data-field="type" data-sortable="true">Typ</th>
-                            <th data-field="content">Content</th>
-                            <th data-field="changeDate" data-sortable="true">Zuletzt geändert</th>
-                            <th data-field="ttl" data-sortable="true">TTL</th>
-                            <th data-field="disabled" data-sortable="true">Disabled</th>
-                            <th data-field="id">ID</th>
-                            <th>Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (dnsRecords && dnsRecords.length) { %>
-                            <% dnsRecords.forEach(record => { %>
-                            <tr data-subdomain="<%= record.name %>">
-                                <td><%= record.name %></td>
-                                <td><%= record.type %></td>
-                                <td style="word-break: break-word; white-space: normal; max-width: 250px;"><%= record.content %></td>
-                                <td><%= new Date(record.changeDate).toLocaleString() %></td>
-                                <td><%= record.ttl %></td>
-                                <td><%= record.disabled ? "Ja" : "Nein" %></td>
-                                <td><%= record.id %></td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteRecord('<%= record.id %>')">Löschen</button>
-                                    <button class="btn btn-warning btn-sm" onclick="editRecord('<%= record.id %>')">Bearbeiten</button>
-                                </td>
-                            </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr><td colspan="8" class="text-center">Keine DNS-Einträge vorhanden</td></tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-success mt-3">Neuen Eintrag hinzufügen</button>
-        </div>
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h3>Subdomain auswählen</h3>
+      <select id="subdomainFilter" class="form-select">
+        <option value="">Alle anzeigen</option>
+        <% if (subdomains && subdomains.length) { %>
+          <% subdomains.forEach(subdomain => { %>
+            <option value="<%= subdomain %>"><%= subdomain %></option>
+          <% }); %>
+        <% } %>
+      </select>
+
+      <h3 class="mt-3">DNS Einträge</h3>
+      <table id="dnsTable" 
+             class="table table-striped"
+             data-toggle="table"
+             data-search="true"
+             data-pagination="true"
+             data-filter-control="true">
+        <thead>
+          <tr>
+            <th data-field="name" data-sortable="true">Name</th>
+            <th data-field="type" data-sortable="true">Typ</th>
+            <th data-field="content">Content</th>
+            <th data-field="changeDate" data-sortable="true">Zuletzt geändert</th>
+            <th data-field="ttl" data-sortable="true">TTL</th>
+            <th data-field="disabled" data-sortable="true">Disabled</th>
+            <th data-field="id" data-sortable="true">ID</th>
+            <!-- Ändere hier das Datenfeld von "id" zu "actions" -->
+            <th data-field="actions" data-formatter="actionFormatter">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (dnsRecords && dnsRecords.length) { %>
+            <% dnsRecords.forEach(record => { %>
+              <tr data-subdomain="<%= record.name %>">
+                <td><%= record.name %></td>
+                <td><%= record.type %></td>
+                <td style="word-break: break-word; white-space: normal; max-width: 250px;"><%= record.content %></td>
+                <td><%= new Date(record.changeDate).toLocaleString() %></td>
+                <td><%= record.ttl %></td>
+                <td><%= record.disabled ? "Ja" : "Nein" %></td>
+                <td><%= record.id %></td>
+                <!-- Dieser manuell gerenderte Inhalt wird von Bootstrap Table beim Neuladen überschrieben -->
+                <td>
+                  <button class="btn btn-danger btn-sm" onclick="deleteRecord('<%= record.id %>')">Löschen</button>
+                  <button class="btn btn-warning btn-sm" onclick="editRecord('<%= record.id %>')">Bearbeiten</button>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" class="text-center">Keine DNS-Einträge vorhanden</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
     </div>
+    <button class="btn btn-success mt-3">Neuen Eintrag hinzufügen</button>
+  </div>
+</div>
 
-    <script>
-      // Stelle sicher, dass dnsRecords vom Server als JSON verfügbar ist
-      const dnsRecords = <%- JSON.stringify(dnsRecords || []) %>;
-      console.log("DNS Records im Frontend geladen:", dnsRecords);
-  </script>
-    <script>
-      // Stelle sicher, dass dnsRecords vom Server als JSON verfügbar ist
-      const subdomains = <%- JSON.stringify(subdomains || []) %>;
-      console.log("DNS Records im Frontend geladen:", subdomains);
-  </script>
+<script>
+  // Stelle sicher, dass dnsRecords und subdomains vom Server als JSON verfügbar sind
+  const dnsRecords = <%- JSON.stringify(dnsRecords || []) %>;
+  const subdomains = <%- JSON.stringify(subdomains || []) %>;
+  
+  console.log("DNS Records im Frontend geladen:", dnsRecords);
+  console.log("Subdomains im Frontend geladen:", subdomains);
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const subdomainFilter = document.getElementById("subdomainFilter");
-            const dnsTable = $('#dnsTable');
+  /**
+   * Formatter-Funktion für die Aktionsspalte.
+   * Wird von Bootstrap Table für jeden Datensatz aufgerufen.
+   */
+  function actionFormatter(value, row, index) {
+    return `
+      <button class="btn btn-danger btn-sm" onclick="deleteRecord('${row.id}')">Löschen</button>
+      <button class="btn btn-warning btn-sm" onclick="editRecord('${row.id}')">Bearbeiten</button>
+    `;
+  }
 
-            if (subdomainFilter) {
-                subdomainFilter.addEventListener("change", function() {
-                    const selectedSubdomain = this.value ? this.value.toLowerCase() : "";
-                    console.log("Ausgewählte Subdomain:", selectedSubdomain);
-                    
-                    if (selectedSubdomain === "") {
-                        // Alle Einträge anzeigen
-                        dnsTable.bootstrapTable('load', dnsRecords);
-                    } else {
-                        // Filtere nur Einträge, die die Subdomain enthalten
-                        const filteredRecords = dnsRecords.filter(record => record.name.toLowerCase().includes(selectedSubdomain));
-                        console.log("Gefilterte Einträge:", filteredRecords);
-                        dnsTable.bootstrapTable('load', filteredRecords);
-                    }
-                });
-            }
+  document.addEventListener("DOMContentLoaded", function() {
+    const subdomainFilter = document.getElementById("subdomainFilter");
+    const dnsTable = $('#dnsTable');
 
-            try {
-                console.log("Versuche, Bootstrap Table zu initialisieren...");
-                dnsTable.bootstrapTable({
-                    data: dnsRecords,
-                    filterControl: true
-                });
-                console.log("Bootstrap Table erfolgreich initialisiert.");
-            } catch (error) {
-                console.error("Fehler bei der Bootstrap Table-Initialisierung:", error);
-            }
-        });
-    </script>
+    // Initialisiere die Bootstrap Table mit den übergebenen DNS-Datensätzen
+    if (!dnsTable.data('bootstrap.table')) {
+      console.log("Versuche, Bootstrap Table zu initialisieren...");
+      dnsTable.bootstrapTable({
+        data: dnsRecords,
+        filterControl: true  // Aktiviert die Filtersteuerung
+      });
+      console.log("Bootstrap Table erfolgreich initialisiert.");
+    }
+
+    // Filterfunktion für die Subdomains
+    if (subdomainFilter) {
+      subdomainFilter.addEventListener("change", function() {
+        const selectedSubdomain = this.value ? this.value.toLowerCase() : "";
+        console.log("Ausgewählte Subdomain:", selectedSubdomain);
+
+        let filteredRecords = dnsRecords;
+        if (selectedSubdomain !== "") {
+          filteredRecords = dnsRecords.filter(record => record.name.toLowerCase().includes(selectedSubdomain));
+        }
+        
+        // Aktualisiere die Tabelle mit den gefilterten Einträgen
+        dnsTable.bootstrapTable('load', filteredRecords);
+      });
+    }
+  });
+</script>
 </body>
 </html>
