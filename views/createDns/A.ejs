@@ -94,7 +94,7 @@
     // Funktion zur Aktualisierung der Vorschau
     function updatePreview() {
         const domain = "<%= domain %>";
-        const hostname = hostnameInput.value.trim() || "@";
+        const hostname = hostnameInput.value.trim();
         const destination = destinationInput.value.trim() || "IPv4-Adresse";
         const ttl = ttlSelect.value;
         
