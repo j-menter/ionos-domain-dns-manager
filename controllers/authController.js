@@ -27,8 +27,6 @@ exports.getDomainDetails = async (req, res) => {
   const domainName = req.params.domain; // DOMAIN aus url
   
   const fqdnId = await API_GET_DOMAINS();
-  console.log("fqdn und Id: ",fqdnId)
-
   const domainEntry = fqdnId.find(domain => domain.name === domainName);
 
     if (!domainEntry) {

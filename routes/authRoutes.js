@@ -13,6 +13,7 @@ router.post("/domain/:domain/delete/:recordId", authController.postDeleteDnsReco
 
 //ab hier dns record erstellung
 router.get("/domain/:domain/createDns/A", dnsController.getcreateDnsA)
+router.post("/domain/:domain/createDns/A", dnsController.postcreateDnsA)
 
 
 module.exports = router;
