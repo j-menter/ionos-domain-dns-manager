@@ -1,68 +1,126 @@
 <%- include('partials/header') -%>
+<style>
+  /* Hintergrund-Overlay (ehemals inline) */
+  .background-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+  /* Container um die Tabelle */
+  .table-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid black;
+    background: white;
+    z-index: 2;
+  }
+  /* Tabelle */
+  .dns-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  /* Tabellenkopf */
+  .table-header {
+    background-color: #00164e;
+    color: white;
+  }
+  .th-cell {
+    padding: 10px;
+    text-align: left;
+  }
+  .th-cell-arrow {
+    padding: 10px;
+    text-align: right;
+  }
+  /* Link in den Zeilen: füllt den gesamten Bereich der Zelle */
+  .clickable-row a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    color: inherit;
+    text-decoration: none;
+    background-color: white;
+  }
+  /* Hover-Effekt: Beim Überfahren der Zeile wird der Hintergrund aller a-Tags geändert */
+  .clickable-row:hover a {
+    background-color: #D6EEEE;
+  }
+</style>
+
 <div class="container my-5">
     <h1 class="text-center mb-4">DNS Records Übersicht</h1>
     
-    <div style="position: absolute; top: 10px; left: 10px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.1); border-radius: 15px; box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); z-index: 1;"></div>
+    <div class="background-overlay"></div>
     
-    <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid black; background: white; z-index: 2;">
-        <table style="width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden;">
-            <thead style="background-color: #00164e; color: white;">
+    <div class="table-wrapper">
+        <table class="dns-table">
+            <thead class="table-header">
                 <tr>
-                    <th style="padding: 10px; text-align: left;">Typ</th>
-                    <th style="padding: 10px; text-align: left;">Beschreibung</th>
-                    <th style="padding: 10px;"></th> <!-- Pfeilspalte -->
+                    <th class="th-cell">Typ</th>
+                    <th class="th-cell">Beschreibung</th>
+                    <th class="th-cell th-cell-arrow"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>A</strong></td>
-                    <td style="padding: 10px;">Weist eine IPv4-Adresse zu.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/A"><strong>A</strong></a></td>
+                    <td><a href="/records/A">Weist eine IPv4-Adresse zu.</a></td>
+                    <td><a href="/records/A">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>AAAA</strong></td>
-                    <td style="padding: 10px;">Weist eine IPv6-Adresse zu.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/AAAA"><strong>AAAA</strong></a></td>
+                    <td><a href="/records/AAAA">Weist eine IPv6-Adresse zu.</a></td>
+                    <td><a href="/records/AAAA">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>CAA</strong></td>
-                    <td style="padding: 10px;">Definiert einen SSL-Provider.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/CAA"><strong>CAA</strong></a></td>
+                    <td><a href="/records/CAA">Definiert einen SSL-Provider.</a></td>
+                    <td><a href="/records/CAA">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>CNAME</strong></td>
-                    <td style="padding: 10px;">Erstellt einen Alias für eine andere Domain.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/CNAME"><strong>CNAME</strong></a></td>
+                    <td><a href="/records/CNAME">Erstellt einen Alias für eine andere Domain.</a></td>
+                    <td><a href="/records/CNAME">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>MX</strong></td>
-                    <td style="padding: 10px;">Weist einen Mailserver zu.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/MX"><strong>MX</strong></a></td>
+                    <td><a href="/records/MX">Weist einen Mailserver zu.</a></td>
+                    <td><a href="/records/MX">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>NS</strong></td>
-                    <td style="padding: 10px;">Weist einen alternativen Nameserver zu.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/NS"><strong>NS</strong></a></td>
+                    <td><a href="/records/NS">Weist einen alternativen Nameserver zu.</a></td>
+                    <td><a href="/records/NS">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>SRV</strong></td>
-                    <td style="padding: 10px;">Definiert eine Serviceverbindung.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/SRV"><strong>SRV</strong></a></td>
+                    <td><a href="/records/SRV">Definiert eine Serviceverbindung.</a></td>
+                    <td><a href="/records/SRV">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>IONOS SPF (TXT)</strong></td>
-                    <td style="padding: 10px;">Legitimiert IONOS als E-Mail-Absender.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/IONOS-SPF"><strong>IONOS SPF (TXT)</strong></a></td>
+                    <td><a href="/records/IONOS-SPF">Legitimiert IONOS als E-Mail-Absender.</a></td>
+                    <td><a href="/records/IONOS-SPF">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>SPF (TXT)</strong></td>
-                    <td style="padding: 10px;">Definiert legitime E-Mail-Sender.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/SPF"><strong>SPF (TXT)</strong></a></td>
+                    <td><a href="/records/SPF">Definiert legitime E-Mail-Sender.</a></td>
+                    <td><a href="/records/SPF">></a></td>
                 </tr>
-                <tr style="cursor: pointer;" onmouseover="this.style.backgroundColor='#D6EEEE'" onmouseout="this.style.backgroundColor='white'">
-                    <td style="padding: 10px;"><strong>TXT</strong></td>
-                    <td style="padding: 10px;">Fügt Textdaten wie DMARC oder DKIM hinzu.</td>
-                    <td style="padding: 10px; text-align: right;">></td>
+                <tr class="clickable-row">
+                    <td><a href="/records/TXT"><strong>TXT</strong></a></td>
+                    <td><a href="/records/TXT">Fügt Textdaten wie DMARC oder DKIM hinzu.</a></td>
+                    <td><a href="/records/TXT">></a></td>
                 </tr>
             </tbody>
         </table>
