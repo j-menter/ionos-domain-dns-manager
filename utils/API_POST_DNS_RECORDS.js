@@ -16,7 +16,7 @@ async function API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, pr
       }
     ];
 
-    // Axios-Aufruf: Zweiter Parameter = Daten, Dritter Parameter = Konfiguration (Header etc.)
+    // Axios-Aufruf dert post route
     const response = await axios.post(
       `${API_ZONE_URL}/${domainId}/records`,
       payload,

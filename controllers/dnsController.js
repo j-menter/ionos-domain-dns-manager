@@ -1,12 +1,12 @@
 const { API_POST_DNS_RECORDS } = require("../utils/API_POST_DNS_RECORDS");
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 
-exports.getcreateDnsA = (req, res) => {
+exports.getCreateDnsA = (req, res) => {
   
-    res.render("createDns/A", { domain: req.params.domain });
+  res.render("createDns/A", { domain: req.params.domain });
 };
 
-exports.postcreateDnsA = async (req, res) => {
+exports.postCreateDnsA = async (req, res) => {
   try {
     const domain = req.params.domain;
     console.log("body:", req.body);
@@ -55,4 +55,14 @@ exports.postcreateDnsA = async (req, res) => {
     console.error("Fehler beim Anlegen des DNS Records:", error);
     res.status(500).send("Internal Server Error");
   }
+};
+
+exports.getCreateDnsAAAA = (req, res) => {
+  
+  res.render("createDns/AAAA", { domain: req.params.domain });
+};
+
+exports.postCreateDnsAAAA = (req, res) => {
+  
+  res.render("createDns/AAAA", { domain: req.params.domain });
 };

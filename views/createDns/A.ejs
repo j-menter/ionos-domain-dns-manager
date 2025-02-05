@@ -23,9 +23,11 @@
             <div class="form-group">
                 <label for="ttl">TTL</label>
                 <select id="ttl" name="ttl" class="form-control">
-                    <option value="60" selected>1 Minute</option>
+                    <option value="60" selected>1 Minute</option>                    <option value="300">5 Minuten</option>
+                    <option value="1800">30 Minuten</option>
                     <option value="3600">1 Stunde</option>
                     <option value="86400">24 Stunden</option>
+                    <option value="172800">2 Tage</option>
                     <option value="604800">1 Woche</option>
                 </select>
             </div>
@@ -92,12 +94,18 @@
     // Funktion zur Aktualisierung der Vorschau
     function updatePreview() {
         const domain = "<%= domain %>";
-        const hostname = hostnameInput.value.trim() || "@";
+        const hostname = hostnameInput.value.trim();
         const destination = destinationInput.value.trim() || "IPv4-Adresse";
         const ttl = ttlSelect.value;
+        
+        if (hostname){
+            previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
+            wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN A ${destination}`;
+        }else{
+            previewRecord.textContent = `${domain} ${ttl} IN A ${destination}`;
+            wwwRecord.textContent = `www.${domain} ${ttl} IN A ${destination}`;
+        }
 
-        previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
-        wwwRecord.textContent = `www.$${domain} ${ttl} IN A ${destination}`;
     }
 
     // Initialen Wert setzen
