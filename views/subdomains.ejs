@@ -34,7 +34,6 @@
             <th data-field="ttl" data-sortable="true">TTL</th>
             <th data-field="disabled" data-sortable="true">Disabled</th>
             <th data-field="id" data-sortable="true">ID</th>
-            <!-- Ändere hier das Datenfeld von "id" zu "actions" -->
             <th data-field="actions" data-formatter="actionFormatter">Aktionen</th>
           </tr>
         </thead>
@@ -51,8 +50,12 @@
                 <td><%= record.id %></td>
                 <!-- Dieser manuell gerenderte Inhalt wird von Bootstrap Table beim Neuladen überschrieben -->
                 <td>
-                  <button class="btn btn-danger btn-sm" onclick="deleteRecord('<%= record.id %>')">Löschen</button>
-                  <button class="btn btn-warning btn-sm" onclick="editRecord('<%= record.id %>')">Bearbeiten</button>
+                  <a href="/domain/<%= domainName %>/delete/<%= record.id %>" class="btn btn-danger btn-sm mb-2">
+                    Löschen
+                  </a>
+                  <a href="/domain/<%= domainName %>/edit/<%= record.id %>" class="btn btn-warning btn-sm mb-2">
+                    Bearbeiten
+                  </a>
                 </td>
               </tr>
             <% }); %>
@@ -64,7 +67,6 @@
         </tbody>
       </table>
     </div>
-    <button class="btn btn-success mt-3">Neuen Eintrag hinzufügen</button>
   </div>
 </div>
 
@@ -72,18 +74,24 @@
   // Stelle sicher, dass dnsRecords und subdomains vom Server als JSON verfügbar sind
   const dnsRecords = <%- JSON.stringify(dnsRecords || []) %>;
   const subdomains = <%- JSON.stringify(subdomains || []) %>;
+  // domainName für die clientseitige Verwendung definieren:
+  const domainName = "<%= domainName %>";
   
   console.log("DNS Records im Frontend geladen:", dnsRecords);
   console.log("Subdomains im Frontend geladen:", subdomains);
 
   /**
    * Formatter-Funktion für die Aktionsspalte.
-   * Wird von Bootstrap Table für jeden Datensatz aufgerufen.
+   * Diese Funktion wird von Bootstrap Table für jeden Datensatz (row) aufgerufen.
    */
   function actionFormatter(value, row, index) {
     return `
-      <button class="btn btn-danger btn-sm" onclick="deleteRecord('${row.id}')">Löschen</button>
-      <button class="btn btn-warning btn-sm" onclick="editRecord('${row.id}')">Bearbeiten</button>
+      <a href="/domain/${domainName}/delete/${row.id}" class="btn btn-danger btn-sm mb-2">
+        Löschen
+      </a>
+      <a href="/domain/${domainName}/edit/${row.id}" class="btn btn-warning btn-sm mb-2">
+        Bearbeiten
+      </a>
     `;
   }
 
