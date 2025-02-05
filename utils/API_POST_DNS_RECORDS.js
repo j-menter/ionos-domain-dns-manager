@@ -13,9 +13,9 @@ async function API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, pr
                 }
                 [
                     {
-                      "name": "domainName",
-                      "type": "type",
-                      "content": "content",
+                      "name": domainName,
+                      "type": type,
+                      "content": content,
                       "ttl": ttl,
                       "prio": prio,
                       "disabled": false
