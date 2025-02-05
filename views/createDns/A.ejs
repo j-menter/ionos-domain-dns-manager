@@ -23,14 +23,18 @@
             <div class="form-group">
                 <label for="ttl">TTL</label>
                 <select id="ttl" name="ttl" class="form-control">
-                    <option>1 Stunde</option>
-                    <option>24 Stunden</option>
-                    <option>1 Woche</option>
+                    <option value="60" selected>1 Minute</option>
+                    <option value="300">5 Minuten</option>
+                    <option value="1800">30 Minuten</option>
+                    <option value="3600">1 Stunde</option>
+                    <option value="86400">24 Stunden</option>
+                    <option value="172800">2 Tage</option>
+                    <option value="604800">1 Woche</option>
                 </select>
             </div>
             
             <div class="preview">
-                <p><strong>Vorschau:</strong> <%= domain %> 3600 IN A</p>
+                <p><strong>Vorschau:</strong> <span id="previewRecord"><%= domain %> 3600 IN A</span></p>
                 
                 <div class="mb-3">
                     <p>
@@ -38,21 +42,18 @@
                         <span style="text-decoration: line-through;" id="wwwRecord">www.<%= domain %> 3600 IN A</span>
                     </p>
                     <div class="form-check" style="margin-top: 2px;">
-                      <input class="form-check-input" type="checkbox" id="include_www" name="include_www" value="fasle">
+                      <input class="form-check-input" type="checkbox" id="include_www" name="include_www" value="false">
                       <label class="form-check-label" for="include_www">
                         DNS-Record für www hinzufügen
                       </label>
                     </div>
-                  </div>
-
+                </div>
             </div>
             
             <div class="d-flex justify-content-between">
                 <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
                 <button type="submit" class="btn btn-primary">Speichern</button>
             </div>
-            
-            
         </form>
     </div>
 </div>
@@ -86,18 +87,40 @@
 <script>
     const includeWwwCheckbox = document.getElementById('include_www');
     const wwwRecord = document.getElementById('wwwRecord');
-    
+    const hostnameInput = document.getElementById('hostname');
+    const ttlSelect = document.getElementById('ttl');
+    const destinationInput = document.getElementById('destination');
+    const previewRecord = document.getElementById('previewRecord');
+
+    // Funktion zur Aktualisierung der Vorschau
+    function updatePreview() {
+        const domain = "<%= domain %>";
+        const hostname = hostnameInput.value.trim() || "@";
+        const destination = destinationInput.value.trim() || "IPv4-Adresse";
+        const ttl = ttlSelect.value;
+        
+        if (hostname){
+            previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
+            wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN A ${destination}`;
+        }else{
+            previewRecord.textContent = `${domain} ${ttl} IN A ${destination}`;
+            wwwRecord.textContent = `www.${domain} ${ttl} IN A ${destination}`;
+        }
+    }
+
     // Initialen Wert setzen
     includeWwwCheckbox.value = includeWwwCheckbox.checked ? "true" : "false";
-    
+
     includeWwwCheckbox.addEventListener('change', function() {
-        // Checkbox-Wert dynamisch anpassen
         this.value = this.checked ? "true" : "false";
-        
-        // Strike-through anwenden oder entfernen
         wwwRecord.style.textDecoration = !this.checked ? "line-through" : "none";
     });
-    
+
+    // Event Listener für Hostname, TTL und Destination-Feld
+    hostnameInput.addEventListener('input', updatePreview);
+    ttlSelect.addEventListener('change', updatePreview);
+    destinationInput.addEventListener('input', updatePreview);
+
     document.querySelector('.btn-secondary').addEventListener('click', function() {
         window.history.back();
     });
