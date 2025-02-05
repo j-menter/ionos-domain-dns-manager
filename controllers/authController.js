@@ -1,6 +1,5 @@
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 const { API_GET_DOMAIN_RECORDS } = require("../utils/API_GET_DOMAIN_RECORDS");
-const { API_POST_DNS_RECORDS } = require("../utils/API_POST_DNS_RECORDS");
 
 exports.getFqdn = async (req, res) => {
   try {
