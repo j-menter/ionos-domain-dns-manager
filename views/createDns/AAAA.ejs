@@ -1,10 +1,10 @@
 <%- include('../partials/header') -%>
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">DNS-Record hinzufügen</h1>
+    <h1 class="text-center mb-4">AAAA-Record hinzufügen</h1>
     
     <div class="form-container">
-        <form action="/domain/<%= domain %>/createDns" method="POST">
+        <form action="/domain/<%= domain %>/createDns/AAAA" method="POST">
             <div class="form-group">
                 <label for="recordType">Typ</label>
                 <input type="text" id="recordType" name="type" class="form-control" value="AAAA" readonly>
@@ -100,11 +100,11 @@
         const ttl = ttlSelect.value;
 
         if (hostname){
-            previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
-            wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN A ${destination}`;
+            previewRecord.textContent = `${hostname}.${domain} ${ttl} IN AAAA ${destination}`;
+            wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN AAAA ${destination}`;
         }else{
-            previewRecord.textContent = `${domain} ${ttl} IN A ${destination}`;
-            wwwRecord.textContent = `www.${domain} ${ttl} IN A ${destination}`;
+            previewRecord.textContent = `${domain} ${ttl} IN AAAA ${destination}`;
+            wwwRecord.textContent = `www.${domain} ${ttl} IN AAAA ${destination}`;
         }
 
     }
