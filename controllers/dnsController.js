@@ -9,10 +9,10 @@ exports.getCreateDnsA = (req, res) => {
 exports.postCreateDnsA = async (req, res) => {
   try {
     const domain = req.params.domain;
-    console.log("body:", req.body);
-
+    
     const type = "A";
-    const { hostname = "1.1.1.1", destination, ttl = 300, include_www = false, prio = 0, disabled = false } = req.body;
+    const { hostname, destination = "1.1.1.1" , ttl = 300, include_www = false, prio = 0, disabled = false } = req.body;
+    console.log("body:", req.body);
 
 
     // Domains von der API abrufen (z. B. [{name: 'handyatelier.de', id: '...'}, ...])
@@ -45,7 +45,7 @@ exports.postCreateDnsA = async (req, res) => {
     // wird ein zusätzlicher Record für "www.domain" angelegt.
     if (include_www === "true") {
       const wwwRecordName = `www.${domainName}`;
-      await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled);
+      await API_POST_DNS_RECORDS(domainId, wwwRecordName, type, content, ttl, prio, disabled);
       console.log(`DNS Record für ${wwwRecordName} angelegt.`);
     }
 
