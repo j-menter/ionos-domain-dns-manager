@@ -5,26 +5,28 @@
     // Die aktuelle Domain aus der URL extrahieren
     const pathParts = window.location.pathname.split("/");
     const domain = pathParts[2]; // "handyatelier.de" (je nach Position in der URL anpassen)
+
     // Alle Links in der Tabelle anpassen
     document.querySelectorAll(".clickable-row a").forEach((link) => {
-      const recordType = link.getAttribute("href").split("/").pop(); // z. B. "A"
+      const recordType = link.getAttribute("href").split("/").pop();
       link.setAttribute("href", `/domain/${domain}/createDns/${recordType}`);
     });
+
+    // Header-Text aktualisieren
+    const header = document.querySelector("h1.text-center");
+    if (header) {
+      header.innerHTML = `DNS Records zu <b>${domain}</b> hinzufügen`;
+    }
+
+    // Back-Link aktualisieren
+    const backBtn = document.getElementById("back-btn");
+    if (backBtn) {
+      backBtn.setAttribute("href", `/domain/${domain}/`);
+    }
   });
 </script>
 
 <style>
-  .background-overlay {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 15px;
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
-    z-index: 1;
-  }
   .table-wrapper {
     position: relative;
     border-radius: 12px;
@@ -65,10 +67,11 @@
   }
 </style>
 
-<div class="container my-5">
-  <h1 class="text-center mb-4">DNS Records Übersicht</h1>
+<div class="container my-4">
+  <h1 class="text-center"></h1>
+  <a id="back-btn" href="" class="btn btn-primary btn-sm mb-2">Zurück</a>
+  
 
-  <div class="background-overlay"></div>
 
   <div class="table-wrapper">
     <table class="dns-table">
