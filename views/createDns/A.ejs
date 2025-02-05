@@ -1,10 +1,10 @@
 <%- include('../partials/header') -%>
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">DNS-Record hinzufügen</h1>
+    <h1 class="text-center mb-4">A-Record hinzufügen</h1>
     
     <div class="form-container">
-        <form action="/domain/<%= domain %>/createDns/A" method="POST">
+        <form action="/domain/<%= domain %>/createDns/A" method="POST" id="dnsForm">
             <div class="form-group">
                 <label for="recordType">Typ</label>
                 <input type="text" id="recordType" name="type" class="form-control" value="A" readonly>
@@ -18,12 +18,16 @@
             <div class="form-group">
                 <label for="destination">Zeigt auf</label>
                 <input type="text" id="destination" name="destination" class="form-control" placeholder="192.168.1.1 (IPv4-Adresse)">
+                <div class="invalid-feedback">
+                    Bitte geben Sie eine gültige IPv4-Adresse ein.
+                </div>
             </div>
             
             <div class="form-group">
                 <label for="ttl">TTL</label>
                 <select id="ttl" name="ttl" class="form-control">
-                    <option value="60" selected>1 Minute</option>                    <option value="300">5 Minuten</option>
+                    <option value="60" selected>1 Minute</option>
+                    <option value="300">5 Minuten</option>
                     <option value="1800">30 Minuten</option>
                     <option value="3600">1 Stunde</option>
                     <option value="86400">24 Stunden</option>
@@ -51,7 +55,7 @@
             
             <div class="d-flex justify-content-between">
                 <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
-                <button type="submit" class="btn btn-primary">Speichern</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" >Speichern</button>
             </div>
         </form>
     </div>
@@ -77,10 +81,6 @@
         margin-top: 15px;
         font-size: 14px;
     }
-    .button-group {
-        display: flex;
-        justify-content: space-between;
-    }
 </style>
 
 <script>
@@ -90,6 +90,8 @@
     const ttlSelect = document.getElementById('ttl');
     const destinationInput = document.getElementById('destination');
     const previewRecord = document.getElementById('previewRecord');
+    const submitBtn = document.getElementById('submitBtn');
+    const dnsForm = document.getElementById('dnsForm');
 
     // Funktion zur Aktualisierung der Vorschau
     function updatePreview() {
@@ -98,14 +100,13 @@
         const destination = destinationInput.value.trim() || "IPv4-Adresse";
         const ttl = ttlSelect.value;
         
-        if (hostname){
+        if (hostname) {
             previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
             wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN A ${destination}`;
-        }else{
+        } else {
             previewRecord.textContent = `${domain} ${ttl} IN A ${destination}`;
             wwwRecord.textContent = `www.${domain} ${ttl} IN A ${destination}`;
         }
-
     }
 
     // Initialen Wert setzen
@@ -116,12 +117,41 @@
         wwwRecord.style.textDecoration = !this.checked ? "line-through" : "none";
     });
 
-    // Event Listener für Hostname, TTL und Destination-Feld
+    // Event Listener für Hostname und TTL
     hostnameInput.addEventListener('input', updatePreview);
     ttlSelect.addEventListener('change', updatePreview);
-    destinationInput.addEventListener('input', updatePreview);
 
-    document.querySelector('.btn-secondary').addEventListener('click', function() {
+    // Regex zur Validierung einer IPv4-Adresse
+    const ipv4Regex = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)(\.(25[0-5]|2[0-4]\d|[01]?\d\d?)){3}$/;
+
+    // Event Listener für Destination-Feld: Aktualisieren der Vorschau, Validierung und Button-Steuerung
+    destinationInput.addEventListener('input', function() {
+        updatePreview();
+        const value = destinationInput.value.trim();
+        
+        if (ipv4Regex.test(value)) {
+            destinationInput.classList.remove('is-invalid');
+            destinationInput.classList.add('is-valid');
+            submitBtn.disabled = false;
+        } else {
+            destinationInput.classList.remove('is-valid');
+            destinationInput.classList.add('is-invalid');
+            submitBtn.disabled = true;
+        }
+    });
+
+    // Zusätzliches Blockieren des Formular-Submit, falls Destination ungültig ist
+    dnsForm.addEventListener('submit', function(e) {
+        const value = destinationInput.value.trim();
+        if (!ipv4Regex.test(value)) {
+            e.preventDefault();
+            destinationInput.focus();
+        }
+    });
+
+    // Optionaler Click-Listener für den "Abbrechen"-Button (falls per JS zurück navigiert werden soll)
+    document.querySelector('.btn-secondary').addEventListener('click', function(e) {
+        e.preventDefault();
         window.history.back();
     });
 </script>
