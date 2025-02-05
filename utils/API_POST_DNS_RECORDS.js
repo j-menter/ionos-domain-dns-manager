@@ -33,7 +33,7 @@ async function API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, pr
     return response.data;
   } catch (error) {
     console.error(
-      'Fehler beim Erstellen der Subdomain:',
+      'Fehler beim Erstellen des DNS-Records:',
       error.response ? error.response.data : error.message
     );
     throw error;

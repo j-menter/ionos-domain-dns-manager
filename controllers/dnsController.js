@@ -31,20 +31,20 @@ exports.postCreateDnsA = async (req, res) => {
     // - Wenn der eingegebene Hostname "@" (oder leer) ist, wird der Recordname zur Domain
     // - Andernfalls: "hostname.domain"
     const domainName = (hostname.trim() === "@" || hostname.trim() === "")
-      ? domain
+      ? domainObj.name
       : `${hostname.trim()}.${domain}`;
 
     console.log("domainName", domainName)
     const content = destination; // z.B IP-Adresse
 
     // DNS Record anlegen
-    await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled);
-    console.log(`DNS Record für ${domainName} angelegt.`);
+    await API_POST_DNS_RECORDS(domainId, domainObj.name, type, content, ttl, prio, disabled);
+    console.log(`DNS Record für ${domainObj.name} angelegt.`);
 
     // Optional: Wenn die Checkbox "include_www" auf "true" gesetzt ist,
     // wird ein zusätzlicher Record für "www.domain" angelegt.
     if (include_www === "true") {
-      const wwwRecordName = `www.${domainName}`;
+      const wwwRecordName = `www.${domainObj.name}`;
       await API_POST_DNS_RECORDS(domainId, wwwRecordName, type, content, ttl, prio, disabled);
       console.log(`DNS Record für ${wwwRecordName} angelegt.`);
     }
