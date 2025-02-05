@@ -1,7 +1,8 @@
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 const { API_GET_DOMAIN_RECORDS } = require("../utils/API_GET_DOMAIN_RECORDS");
+const { API_POST_DNS_RECORDS } = require("../utils/API_POST_DNS_RECORDS");
 
-exports.fqdn = async (req, res) => {
+exports.getFqdn = async (req, res) => {
   try {
       // Abrufen der DNS-Zonen
       const response = await API_GET_DOMAINS();
@@ -75,25 +76,7 @@ exports.getDomainDNS = (req, res) => {
   res.render("dns");
 };
 
+exports.getDnsTable= async (req, res) => {
 
-// // Route zum Erstellen einer neuen Subdomain
-// app.post('/domains/:domainName/subdomains', async (req, res) => {
-//   const { domainName } = jonasmenter.com;
-//   const { name, content, type = 'A', ttl = 3600, prio = 0, disabled = false } = req.body;
-
-//   try {
-//       const zoneId = await getDnsZones(domainName);
-//       const newRecord = [{
-//           name,
-//           type,
-//           content,
-//           ttl,
-//           prio,
-//           disabled
-//       }];
-//       const response = await ionosApiRequest('POST', `${DNS_BASE_URL}/zones/${zoneId}/records`, newRecord);
-//       res.json(response);
-//   } catch (error) {
-//       res.status(500).json({ error: error.message });
-//   }
-// });
+  res.render("dnsTable");
+};
