@@ -6,12 +6,11 @@ exports.getCreateDnsA = (req, res) => {
   res.render("createDns/A", { domain: req.params.domain });
 };
 
-exports.postCreateDnsA = async (req, res) => {
+exports.postCreateDns = async (req, res) => {
   try {
     const domain = req.params.domain;
     
-    const type = "A";
-    const { hostname, destination = "1.1.1.1" , ttl = 300, include_www = false, prio = 0, disabled = false } = req.body;
+    const { type,  hostname, destination = "1.1.1.1" , ttl = 300, include_www = false, prio = 0, disabled = false } = req.body;
     console.log("body:", req.body);
 
 
@@ -62,17 +61,8 @@ exports.getCreateDnsAAAA = (req, res) => {
   res.render("createDns/AAAA", { domain: req.params.domain });
 };
 
-exports.postCreateDnsAAAA = (req, res) => {
-  
-  res.render("createDns/AAAA", { domain: req.params.domain });
-};
 
 exports.getCreateDnsTXT = (req, res) => {
-  
-  res.render("createDns/TXT", { domain: req.params.domain });
-};
-
-exports.postCreateDnsTXT = (req, res) => {
   
   res.render("createDns/TXT", { domain: req.params.domain });
 };
