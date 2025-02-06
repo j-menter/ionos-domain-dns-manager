@@ -1,0 +1,121 @@
+<%- include('../partials/header') -%>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">DNS-Record hinzufügen</h1>
+    
+    <div class="form-container">
+        <form action="/domain/<%= domain %>/createDns/CAA" method="POST">
+            <div class="form-group">
+                <label for="recordType">Typ</label>
+                <input type="text" id="recordType" name="type" class="form-control" value="CAA" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="hostname">Hostname</label>
+                <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, subdomain ...">
+            </div>
+            
+            <div class="form-group">
+                <label for="destination">Wert</label>
+                <input type="text" id="destination" name="destination" class="form-control" placeholder="caauthority.de, abuse@domain.de">
+            </div>
+            
+            <div class="form-group">
+                <label for="flag">Flag</label>
+                <select id="flag" name="flag" class="form-control">
+                    <option value="0" selected>0 (Nicht kritisch)</option>
+                    <option value="128">128 (Kritisch)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="caaType">Typ</label>
+                <select id="caaType" name="caaType" class="form-control">
+                    <option value="issue" selected>Issue – Zertifizierungsstelle (CA)</option>
+                    <option value="issuewild">Issuewild – Wildcard-CA</option>
+                    <option value="iodef">IODEF – Kontaktadresse</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ttl">TTL</label>
+                <select id="ttl" name="ttl" class="form-control">
+                    <option value="60">1 Minute</option>
+                    <option value="300">5 Minuten</option>
+                    <option value="1800">30 Minuten</option>
+                    <option value="3600" selected>1 Stunde</option>
+                    <option value="86400">24 Stunden</option>
+                    <option value="172800">2 Tage</option>
+                    <option value="604800">1 Woche</option>
+                </select>
+            </div>
+            
+            <div class="preview">
+                <p><strong>Vorschau:</strong> <span id="previewRecord"><%= domain %> 3600 IN CAA ""</span></p>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
+    .preview {
+        margin-top: 15px;
+        font-size: 14px;
+    }
+    .d-flex {
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const hostnameInput = document.getElementById('hostname');
+        const ttlSelect = document.getElementById('ttl');
+        const destinationInput = document.getElementById('destination');
+        const flagSelect = document.getElementById('flag');
+        const caaTypeSelect = document.getElementById('caaType');
+        const previewRecord = document.getElementById('previewRecord');
+        const domain = "<%= domain %>";
+
+        function updatePreview() {
+            const hostname = hostnameInput.value.trim();
+            const destination = destinationInput.value.trim() || '""';
+            const ttl = ttlSelect.value;
+            const flag = flagSelect.value;
+            const caaType = caaTypeSelect.value;
+            previewRecord.textContent = hostname ? `${hostname}.${domain} ${ttl} IN CAA ${flag} ${caaType} ${destination}` : `${domain} ${ttl} IN CAA ${flag} ${caaType} ${destination}`;
+        }
+
+        hostnameInput.addEventListener('input', updatePreview);
+        ttlSelect.addEventListener('change', updatePreview);
+        destinationInput.addEventListener('input', updatePreview);
+        flagSelect.addEventListener('change', updatePreview);
+        caaTypeSelect.addEventListener('change', updatePreview);
+        document.querySelector('.btn-secondary').addEventListener('click', () => window.history.back());
+
+        updatePreview();
+    });
+</script>
+
+<%- include('../partials/footer') -%>

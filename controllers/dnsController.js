@@ -76,3 +76,13 @@ exports.postCreateDnsTXT = (req, res) => {
   
   res.render("createDns/TXT", { domain: req.params.domain });
 };
+
+exports.getCreateDnsCAA = (req, res) => {
+  
+  res.render("createDns/CAA", { domain: req.params.domain });
+};
+
+exports.postCreateDnsCAA = (req, res) => {
+  
+  res.render("createDns/CAA", { domain: req.params.domain });
+};

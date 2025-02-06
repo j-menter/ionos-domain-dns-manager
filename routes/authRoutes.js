@@ -22,5 +22,7 @@ router.post("/domain/:domain/createDns/AAAA", dnsController.postCreateDnsAAAA)
 router.get("/domain/:domain/createDns/TXT", dnsController.getCreateDnsTXT)
 router.post("/domain/:domain/createDns/TXT", dnsController.postCreateDnsTXT)
 
+router.get("/domain/:domain/createDns/CAA", dnsController.getCreateDnsCAA)
+router.post("/domain/:domain/createDns/CAA", dnsController.postCreateDnsCAA)
 
 module.exports = router;
