@@ -66,3 +66,8 @@ exports.getCreateDnsTXT = (req, res) => {
   
   res.render("createDns/TXT", { domain: req.params.domain });
 };
+
+exports.getCreateDnsCNAME = (req, res) => {
+  
+  res.render("createDns/CNAME", { domain: req.params.domain });
+};
