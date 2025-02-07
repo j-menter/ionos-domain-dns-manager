@@ -1,5 +1,6 @@
 const { API_POST_DNS_RECORDS } = require("../utils/API_POST_DNS_RECORDS");
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
+const { API_GET_DNS_RECORD } = require("../utils/API_GET_DNS_RECORD");
 const { getHostname } = require("../utils/getHostname");
 
 exports.getCreateDnsA = (req, res) => {
