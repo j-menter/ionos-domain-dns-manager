@@ -62,7 +62,7 @@
                           data-disabled="<%= record.disabled ? 'Ja' : 'Nein' %>"
                     Löschen
                   </button>
-                  <a href="/domain/<%= domainName %>/edit/<%= record.id %>" class="btn btn-warning btn-sm mb-2">
+                  <a href="/domain/<%= domainName %>/editDns/<%= domainZoneId %>/<%= record.id %>" class="btn btn-warning btn-sm mb-2">
                     Bearbeiten
                   </a>
                 </td>
@@ -114,6 +114,7 @@
   const dnsRecords = <%- JSON.stringify(dnsRecords || []) %>;
   const subdomains = <%- JSON.stringify(subdomains || []) %>;
   const domainName = "<%= domainName %>";
+  const domainZoneId = "<%= domainZoneId %>";
   
   console.log("DNS Records im Frontend geladen:", dnsRecords);
   console.log("Subdomains im Frontend geladen:", subdomains);
@@ -137,7 +138,7 @@
               >
         Löschen
       </button>
-      <a href="/domain/${domainName}/edit/${row.id}" class="btn btn-warning btn-sm mb-2">
+      <a href="/domain/${domainName}/editDns/${domainZoneId}/${row.id}" class="btn btn-warning btn-sm mb-2">
         Bearbeiten
       </a>
     `;
