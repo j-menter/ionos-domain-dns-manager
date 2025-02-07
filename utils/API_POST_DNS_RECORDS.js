@@ -29,7 +29,7 @@ async function API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, pr
       }
     );
 
-    console.log('Die Subdomain', response.data[0].name, 'erfolgreich erstellt:');
+    console.log('DNS-eintrag für', response.data[0].name, 'erfolgreich erstellt:');
     return response.data;
   } catch (error) {
     console.error(
