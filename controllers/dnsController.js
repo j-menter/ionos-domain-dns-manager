@@ -7,6 +7,8 @@ exports.getCreateDnsA = (req, res) => {
 };
 
 exports.postCreateDns = async (req, res) => {
+  // const typeList = [ A, AAAA, CNAME, MX, NS, SOA, SRV, TXT, CAA, TLSA, SMIMEA, SSHFP, DS, HTTPS, SVCB, CERT, URI, RP, LOC, OPENPGPKEY ]
+
   try {
     const domain = req.params.domain;
     
@@ -19,6 +21,8 @@ exports.postCreateDns = async (req, res) => {
 
     // Passenden Domain-Eintrag anhand des Namens finden
     const domainObj = domains.find(d => d.name === domain);
+    console.log("domain obj gefunden", domainObj.name, domainObj)
+
     if (!domainObj) {
       console.error("Domain nicht gefunden:", domain);
       return res.status(404).send("Domain not found");
@@ -30,20 +34,20 @@ exports.postCreateDns = async (req, res) => {
     // - Wenn der eingegebene Hostname "@" (oder leer) ist, wird der Recordname zur Domain
     // - Andernfalls: "hostname.domain"
     const domainName = (hostname.trim() === "@" || hostname.trim() === "")
-      ? domainObj.name
+      ? domain
       : `${hostname.trim()}.${domain}`;
 
     console.log("domainName", domainName)
     const content = destination; // z.B IP-Adresse
 
     // DNS Record anlegen
-    await API_POST_DNS_RECORDS(domainId, domainObj.name, type, content, ttl, prio, disabled);
-    console.log(`DNS Record für ${domainObj.name} angelegt.`);
+    await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled);
+    console.log(`DNS Record für ${domainName} angelegt.`);
 
     // Optional: Wenn die Checkbox "include_www" auf "true" gesetzt ist,
     // wird ein zusätzlicher Record für "www.domain" angelegt.
     if (include_www === "true") {
-      const wwwRecordName = `www.${domainObj.name}`;
+      const wwwRecordName = `www.${domainName}`;
       await API_POST_DNS_RECORDS(domainId, wwwRecordName, type, content, ttl, prio, disabled);
       console.log(`DNS Record für ${wwwRecordName} angelegt.`);
     }
