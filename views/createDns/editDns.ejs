@@ -1,0 +1,261 @@
+<%- include('../partials/header') -%>
+
+<div class="container my-5">
+  <h1 class="text-center mb-4"><%= recordData.type %>-Record Bearbeiten</h1>
+  <div class="form-container">
+    <!-- Wichtig: übergebe hier auch die Record-ID -->
+    <form action="/domain/<%= domain %>/editDns/<%= recordData.id %>" method="POST" id="dnsForm">
+      <input type="hidden" name="id" value="<%= recordData.id %>">
+      
+      <!-- Record-Typ (nur lesbar) -->
+      <div class="form-group">
+        <label for="recordType">Typ</label>
+        <input type="text" id="recordType" name="type" class="form-control" value="<%= recordData.type %>" readonly tabindex="-1">
+      </div>
+
+      <% if(recordData.type === 'A' || recordData.type === 'AAAA') { %>
+        <!-- Für A- bzw. AAAA-Records -->
+        <div class="form-group">
+          <label for="hostname">Hostname</label>
+          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ..." value="<%= recordData.hostname %>">
+        </div>
+        <div class="form-group">
+          <label for="destination">
+            <%= recordData.type === 'A' ? 'IPv4-Adresse' : 'IPv6-Adresse' %> Zeigt auf
+          </label>
+          <input type="text" id="destination" name="destination" class="form-control" placeholder="<%= recordData.type === 'A' ? '192.168.1.1' : '2001:0db8:85a3:0000:0000:8a2e:0370:7334' %>" value="<%= recordData.content %>">
+          <div class="invalid-feedback">
+            Bitte geben Sie eine gültige <%= recordData.type === 'A' ? 'IPv4' : 'IPv6' %>-Adresse ein.
+          </div>
+        </div>
+        
+      <% } else if(recordData.type === 'CNAME') { %>
+        <!-- Für CNAME-Records -->
+        <div class="form-group">
+          <label for="hostname">Hostname</label>
+          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ..." value="<%= recordData.hostname %>">
+        </div>
+        <div class="form-group">
+          <label for="destination">Ziel (Alias)</label>
+          <input type="text" id="destination" name="destination" class="form-control" placeholder="ziel.domain.de" value="<%= recordData.content %>">
+        </div>
+      
+      <% } else if(recordData.type === 'MX') { %>
+        <!-- Für MX-Records -->
+        <div class="form-group">
+          <label for="hostname">Hostname</label>
+          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ..." value="<%= getHostname(recordData.name, recordData.rootName) %>">
+        </div>
+        <div class="form-group">
+          <label for="destination">Mailserver</label>
+          <input type="text" id="destination" name="destination" class="form-control" placeholder="mail.domain.de" value="<%= recordData.content %>">
+        </div>
+        <div class="form-group">
+          <label for="priority">Priorität</label>
+          <input type="number" id="priority" name="priority" class="form-control" placeholder="z.B. 10" value="<%= recordData.prio || 0 %>">
+        </div>
+      
+        <% } else if(recordData.type === 'TXT') { %>
+        <!-- Für TXT-Records -->
+        <div class="form-group">
+          <label for="hostname">Hostname</label>
+          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@" value="<%= recordData.hostname %>">
+        </div>
+        <div class="form-group">
+          <label for="content">Text Inhalt</label>
+          <textarea id="content" name="content" class="form-control" placeholder="Textinhalt"><%= recordData.content.replace(/^"|"$/g, '') %></textarea>
+        </div>
+      
+      <% } else if(recordData.type === 'SOA') { %>
+        <!-- Für SOA-Records: Der Inhalt wird anhand von Leerzeichen in Bestandteile zerlegt -->
+        <% 
+          const soaParts = recordData.content.split(' ');
+        %>
+        <div class="form-group">
+          <label for="primaryNS">Primary Nameserver</label>
+          <input type="text" id="primaryNS" name="primaryNS" class="form-control" placeholder="ns1023.ui-dns.de" value="<%= soaParts[0] %>">
+        </div>
+        <div class="form-group">
+          <label for="hostmaster">Hostmaster</label>
+          <input type="text" id="hostmaster" name="hostmaster" class="form-control" placeholder="hostmaster.1und1.com" value="<%= soaParts[1] %>">
+        </div>
+        <div class="form-group">
+          <label for="serial">Serial</label>
+          <input type="text" id="serial" name="serial" class="form-control" value="<%= soaParts[2] %>">
+        </div>
+        <div class="form-group">
+          <label for="refresh">Refresh (in Sekunden)</label>
+          <input type="number" id="refresh" name="refresh" class="form-control" value="<%= soaParts[3] %>">
+        </div>
+        <div class="form-group">
+          <label for="retry">Retry (in Sekunden)</label>
+          <input type="number" id="retry" name="retry" class="form-control" value="<%= soaParts[4] %>">
+        </div>
+        <div class="form-group">
+          <label for="expire">Expire (in Sekunden)</label>
+          <input type="number" id="expire" name="expire" class="form-control" value="<%= soaParts[5] %>">
+        </div>
+        <div class="form-group">
+          <label for="minimum">Minimum (in Sekunden)</label>
+          <input type="number" id="minimum" name="minimum" class="form-control" value="<%= soaParts[6] %>">
+        </div>
+      
+      <% } else { %>
+        <!-- Fallback für unbekannte Recordtypen -->
+        <div class="form-group">
+          <label for="hostname">Hostname</label>
+          <input type="text" id="hostname" name="hostname" class="form-control" value="<%= recordData.hostname %>">
+        </div>
+        <div class="form-group">
+          <label for="destination">Content</label>
+          <input type="text" id="destination" name="destination" class="form-control" value="<%= recordData.content %>">
+        </div>
+      <% } %>
+
+      <!-- Gemeinsames TTL-Feld -->
+      <div class="form-group">
+        <label for="ttl">TTL</label>
+        <select id="ttl" name="ttl" class="form-control">
+          <option value="60" <%= recordData.ttl == 60 ? 'selected' : '' %>>1 Minute</option>
+          <option value="300" <%= recordData.ttl == 300 ? 'selected' : '' %>>5 Minuten</option>
+          <option value="1800" <%= recordData.ttl == 1800 ? 'selected' : '' %>>30 Minuten</option>
+          <option value="3600" <%= recordData.ttl == 3600 ? 'selected' : '' %>>1 Stunde</option>
+          <option value="86400" <%= recordData.ttl == 86400 ? 'selected' : '' %>>24 Stunden</option>
+          <option value="172800" <%= recordData.ttl == 172800 ? 'selected' : '' %>>2 Tage</option>
+          <option value="604800" <%= recordData.ttl == 604800 ? 'selected' : '' %>>1 Woche</option>
+        </select>
+      </div>
+
+      <% if(recordData.type === 'A' || recordData.type === 'AAAA') { %>
+        <!-- Vorschau-Bereich -->
+       <div class="preview">
+        <p><strong>Vorschau:</strong> <span id="previewRecord"></span></p>
+        <div class="mb-3">
+          <p>
+            <strong>Vorschau für www:</strong>
+            <span style="text-decoration: line-through;" id="wwwRecord"></span>
+          </p>
+          <div class="form-check" style="margin-top: 2px;">
+            <input class="form-check-input" type="checkbox" id="include_www" name="include_www" value="false">
+            <label class="form-check-label" for="include_www">
+              DNS-Record für www hinzufügen
+            </label>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+
+      <div class="d-flex justify-content-between">
+        <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .form-container {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  .form-group {
+    margin-bottom: 15px;
+  }
+  .form-group label {
+    display: block;
+    font-weight: bold;
+  }
+  .preview {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+</style>
+
+<script>
+  document.getElementById('recordType').addEventListener('mousedown', function(e) {
+    e.preventDefault();
+  });
+  <% if(recordData.type === 'A' || recordData.type === 'AAAA') { %>
+    const hostnameInput = document.getElementById('hostname');
+    const destinationInput = document.getElementById('destination');
+    const ttlSelect = document.getElementById('ttl');
+    const previewRecord = document.getElementById('previewRecord');
+    const wwwRecord = document.getElementById('wwwRecord');
+    const includeWwwCheckbox = document.getElementById('include_www');
+    const submitBtn = document.getElementById('submitBtn');
+    const dnsForm = document.getElementById('dnsForm');
+
+    // Initialer Zustand der Checkbox
+    includeWwwCheckbox.value = includeWwwCheckbox.checked ? "true" : "false";
+    includeWwwCheckbox.addEventListener('change', function() {
+      this.value = this.checked ? "true" : "false";
+      wwwRecord.style.textDecoration = this.checked ? "none" : "line-through";
+    });
+
+    function updatePreview() {
+      const domain = "<%= domain %>";
+      const hostname = hostnameInput.value.trim();
+      const destination = destinationInput.value.trim() || "IPv4-Adresse";
+      const ttl = ttlSelect.value;
+      const type = "<%= recordData.type %>";
+      
+      if(hostname) {
+        previewRecord.textContent = `${hostname}.${domain} ${ttl} IN ${type} ${destination}`;
+        wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN ${type} ${destination}`;
+      } else {
+        previewRecord.textContent = `${domain} ${ttl} IN ${type} ${destination}`;
+        wwwRecord.textContent = `www.${domain} ${ttl} IN ${type} ${destination}`;
+      }
+    }
+    
+    // Initiale Vorschau mit den bestehenden Werten setzen
+    updatePreview();
+
+    hostnameInput.addEventListener('input', updatePreview);
+    ttlSelect.addEventListener('change', updatePreview);
+    destinationInput.addEventListener('input', function() {
+      updatePreview();
+      const value = destinationInput.value.trim();
+      const ipv4Regex = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)(\.(25[0-5]|2[0-4]\d|[01]?\d\d?)){3}$/;
+      const ipv6Regex = /^([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$/i;
+      let valid = false;
+      if("<%= recordData.type %>" === "A") {
+        valid = ipv4Regex.test(value);
+      } else if("<%= recordData.type %>" === "AAAA") {
+        valid = ipv6Regex.test(value);
+      }
+      if(valid) {
+        destinationInput.classList.remove('is-invalid');
+        destinationInput.classList.add('is-valid');
+        submitBtn.disabled = false;
+      } else {
+        destinationInput.classList.remove('is-valid');
+        destinationInput.classList.add('is-invalid');
+        submitBtn.disabled = true;
+      }
+    });
+    
+    dnsForm.addEventListener('submit', function(e) {
+      const value = destinationInput.value.trim();
+      const ipv4Regex = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)(\.(25[0-5]|2[0-4]\d|[01]?\d\d?)){3}$/;
+      const ipv6Regex = /^([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$/i;
+      let valid = false;
+      if("<%= recordData.type %>" === "A") {
+        valid = ipv4Regex.test(value);
+      } else if("<%= recordData.type %>" === "AAAA") {
+        valid = ipv6Regex.test(value);
+      }
+      if(!valid) {
+        e.preventDefault();
+        destinationInput.focus();
+      }
+    });
+  <% } %>
+</script>
+
+<%- include('../partials/footer') -%>

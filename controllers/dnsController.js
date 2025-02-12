@@ -86,3 +86,47 @@ exports.getCreateDnsNS = (req, res) => {
   
   res.render("createDns/NS", { domain: req.params.domain });
 };
+
+exports.getEditDns = async (req, res) => {
+  const zoneId = req.params.zoneId;
+  const recordId = req.params.recordId;
+  // API 
+  const recordData = await API_GET_DNS_RECORD(zoneId, recordId);
+  console.log("get record data", recordData)
+
+  const hostname= getHostname(recordData.name, recordData.rootName)
+  recordData.hostname = hostname;
+
+
+  res.render("createDns/editDns", { domain: req.params.domain, recordData});
+}
+
+exports.postEditDns = async (req, res) => {
+
+if (req.body.type === "A") {
+
+}
+switch (req.body.type) {
+  case "A":
+    
+    break;
+
+  case "AAAA":
+    
+    break;
+
+  case "CNAME":
+    
+    break;
+    
+  case "CAA":
+    
+    break;
+
+  default:
+    break;
+}
+
+  await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled);
+
+}
