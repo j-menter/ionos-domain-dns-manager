@@ -1,0 +1,105 @@
+<%- include('../partials/header') -%>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">NS-Record hinzufügen</h1>
+    
+    <div class="form-container">
+        <form action="/domain/<%= domain %>/createDns/NS" method="POST">
+            <div class="form-group">
+                <label for="recordType">Typ</label>
+                <input type="text" id="recordType" name="type" class="form-control" value="NS" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="hostname">Hostname</label>
+                <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ...">
+            </div>
+            
+            <div class="form-group">
+                <label for="destination">Wert</label>
+                <input type="text" id="destination" name="destination" class="form-control" placeholder="ns1.eigener-server.de">
+                <small class="form-text text-muted">Zeigt auf muss mindestens eine Domain sein (XX.YY) - auch Sub-Subdomains sind erlaubt.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="ttl">TTL</label>
+                <select id="ttl" name="ttl" class="form-control">
+                    <option value="60" selected>1 Minute</option>
+                    <option value="300">5 Minuten</option>
+                    <option value="1800">30 Minuten</option>
+                    <option value="3600">1 Stunde</option>
+                    <option value="86400">24 Stunden</option>
+                    <option value="172800">2 Tage</option>
+                    <option value="604800">1 Woche</option>
+                </select>
+            </div>
+            
+            <div class="preview">
+                <p><strong>Vorschau:</strong> <span id="previewRecord"><%= domain %> 3600 IN NS</span></p>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
+    .preview {
+        margin-top: 15px;
+        font-size: 14px;
+    }
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+
+<script>
+    const hostnameInput = document.getElementById('hostname');
+    const ttlSelect = document.getElementById('ttl');
+    const destinationInput = document.getElementById('destination');
+    const previewRecord = document.getElementById('previewRecord');
+
+    function updatePreview() {
+        const domain = "<%= domain %>";
+        const hostname = hostnameInput.value.trim();
+        const destination = destinationInput.value.trim() || '""';
+        const ttl = ttlSelect.value;
+
+        if (hostname) {
+            previewRecord.textContent = `${hostname}.${domain} ${ttl} IN NS ${destination}`;
+        } else {
+            previewRecord.textContent = `${domain} ${ttl} IN NS ${destination}`;
+        }
+    }
+
+    hostnameInput.addEventListener('input', updatePreview);
+    ttlSelect.addEventListener('change', updatePreview);
+    destinationInput.addEventListener('input', updatePreview);
+
+    document.querySelector('.btn-secondary').addEventListener('click', function() {
+        window.history.back();
+    });
+
+    updatePreview();
+</script>
+
+<%- include('../partials/footer') -%>

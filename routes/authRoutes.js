@@ -20,5 +20,6 @@ router.get("/domain/:domain/createDns/AAAA", dnsController.getCreateDnsAAAA)
 
 router.get("/domain/:domain/createDns/TXT", dnsController.getCreateDnsTXT)
 
+router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
 
 module.exports = router;
