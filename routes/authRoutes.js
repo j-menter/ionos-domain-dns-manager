@@ -21,5 +21,10 @@ router.get("/domain/:domain/createDns/AAAA", dnsController.getCreateDnsAAAA)
 router.get("/domain/:domain/createDns/TXT", dnsController.getCreateDnsTXT)
 router.get("/domain/:domain/editDns/:zoneId/:recordId", dnsController.getEditDns)
 
+router.get("/domain/:domain/createDns/CNAME", dnsController.getCreateDnsCNAME)
+
+router.get("/domain/:domain/createDns/CAA", dnsController.getCreateDnsCAA)
+
+router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
 
 module.exports = router;
