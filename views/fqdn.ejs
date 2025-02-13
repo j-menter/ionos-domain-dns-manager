@@ -36,13 +36,19 @@
     height: 100%;
     text-decoration: none;
     color: inherit;
-    padding: 10px; /* Optional: Gleiche Padding wie in anderen Tabellen */
+    padding: 10px;
   }
+  /* Angepasste Hover-Farbe für den Standardmodus (dunkler als vorher) */
   .full-row-link:hover {
-    background-color: #D6EEEE; /* Optional: Hover-Hintergrund wie bei deiner anderen Tabelle */
+    background-color: #AED9E0;
   }
   td {
     padding: 0 !important;
+  }
+
+  /* Dark Mode Anpassung: Andere Hover-Farbe im Darkmode */
+  [data-bs-theme="dark"] .full-row-link:hover {
+    background-color: #495057;
   }
 </style>
 

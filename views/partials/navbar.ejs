@@ -2,25 +2,41 @@
 <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #00164e;">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center" href="/">
-      <img style="height: 30 px; width: 30px; margin-right: 10px;" src="/favicon.png" alt="Logo">
+      <img style="height: 30px; width: 30px; margin-right: 10px;" src="/favicon.png" alt="Logo">
       <span class="d-none d-lg-inline text-light">IONOS Domain-Verwaltung</span>
       <!-- Mobiler Text -->
       <span class="d-inline d-lg-none text-light">IONOS Domain-Verwaltung</span>
     </a>
-      <div class="ms-auto">
-
-        <a href="/logout" class="btn btn-outline-danger" aria-label="Abmelden">
-          <i class="bi bi-door-open"> Abmelden</i>
-        </a>
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-toggle="modal"
-          data-bs-target="#userModal"
-          aria-label="Benutzer-Einstellungen">
-          <i class="bi bi-person-circle"> Benutzer verwalten</i>
+    <div class="ms-auto">
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Benutzer verwalten
         </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+          <li>
+            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#userModal">
+              <i class="bi bi-person-circle"></i> Einstellungen
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/logout">
+              <i class="bi bi-door-open"></i> Abmelden
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li class="dropdown-header">Theme ändern</li>
+          <li>
+            <a class="dropdown-item" href="#" id="darkModeToggle">
+              <i class="bi bi-moon-stars-fill"></i> Dunkler Modus
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#" id="lightModeToggle">
+              <i class="bi bi-brightness-high-fill"></i> Heller Modus
+            </a>
+          </li>
+        </ul>
       </div>
+    </div>
   </div>
 </nav>
-
