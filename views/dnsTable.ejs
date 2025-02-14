@@ -27,12 +27,13 @@
 </script>
 
 <style>
+  /* Standard Styles */
   .table-wrapper {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid black;
-    background: white;
+    border: 1px solid #000;
+    background: #fff;
     z-index: 2;
   }
   .dns-table {
@@ -47,7 +48,7 @@
   }
   .table-header {
     background-color: #00164e;
-    color: white;
+    color: #fff;
   }
   .th-cell {
     padding: 10px;
@@ -64,10 +65,50 @@
     padding: 10px;
     color: inherit;
     text-decoration: none;
-    background-color: white;
+    background-color: #fff;
   }
   .clickable-row:hover a {
     background-color: #D6EEEE;
+  }
+
+  /* Dark Mode Anpassungen über data-bs-theme="dark" */
+  [data-bs-theme="dark"] body {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  [data-bs-theme="dark"] .table-wrapper {
+    background: #343a40;
+    border-color: #444;
+  }
+  [data-bs-theme="dark"] .dns-table {
+    background: #343a40;
+  }
+  [data-bs-theme="dark"] td,
+  [data-bs-theme="dark"] th {
+    color: #f8f9fa;
+  }
+  [data-bs-theme="dark"] .table-header {
+    background-color: #00164e; /* Alternativ kannst du hier eine dunklere Variante wählen */
+    color: #f8f9fa;
+  }
+  [data-bs-theme="dark"] .clickable-row a {
+    background-color: #343a40;
+    color: #f8f9fa;
+  }
+  [data-bs-theme="dark"] .clickable-row:hover a {
+    background-color: #495057;
+  }
+  /* Auch Buttons und Links im Header ggf. anpassen */
+  [data-bs-theme="dark"] .navbar,
+  [data-bs-theme="dark"] .dropdown-menu {
+    background-color: #343a40;
+    color: #f8f9fa;
+  }
+  [data-bs-theme="dark"] .dropdown-item {
+    color: #f8f9fa;
+  }
+  [data-bs-theme="dark"] .dropdown-item:hover {
+    background-color: #495057;
   }
 </style>
 
@@ -75,8 +116,6 @@
   <h1 class="text-center"></h1>
   <a id="back-btn" href="" class="btn btn-primary btn-sm mb-2">Zurück</a>
   
-
-
   <div class="table-wrapper">
     <table class="dns-table">
       <thead class="table-header">
@@ -143,4 +182,3 @@
 </div>
 
 <%- include('partials/footer') -%>
-
