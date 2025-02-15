@@ -14,6 +14,13 @@ router.post("/login", passport.authenticate("local", {
   failureFlash: "Ungültige Anmeldedaten",
 }));
 
+router.get('/logout', (req, res, next) => {
+  req.logout(function(err) { // Beachte: In neueren Passport-Versionen wird ein Callback benötigt
+    if (err) { return next(err); }
+    res.redirect('/'); // Leite nach dem Logout weiter
+  });
+});
+
 // Hier wird die Middleware verwendet
 router.use(isAuthenticated);
 
