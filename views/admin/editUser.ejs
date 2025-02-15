@@ -1,0 +1,35 @@
+<%- include('../partials/header') -%>
+<div class="container mt-5">
+  <h1 class="mb-4">Nutzer bearbeiten</h1>
+  <% const selectedDomainIds = user.domains.map(domain => domain.id); %>
+  <form action="/admin/users/edit/<%= user.id %>" method="post">
+    <div class="mb-3">
+      <label for="benutzername" class="form-label">Benutzername:</label>
+      <input type="text" name="benutzername" id="benutzername" class="form-control" value="<%= user.benutzername %>" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email:</label>
+      <input type="email" name="email" id="email" class="form-control" value="<%= user.email %>" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Neues Passwort (optional):</label>
+      <input type="password" name="password" id="password" class="form-control">
+    </div>
+    <div class="form-check mb-3">
+      <input type="checkbox" name="isAdmin" id="isAdmin" class="form-check-input" <%= user.isAdmin ? 'checked' : '' %>>
+      <label for="isAdmin" class="form-check-label">Admin</label>
+    </div>
+    <div class="mb-3">
+      <label for="domainIds" class="form-label">Zugelassene Domains (Strg+Klick für Mehrfachauswahl):</label>
+      <select name="domainIds" id="domainIds" multiple class="form-select">
+        <% domains.forEach(domain => { %>
+          <option value="<%= domain.id %>" <%= selectedDomainIds.includes(domain.id) ? 'selected' : '' %>><%= domain.name %></option>
+        <% }); %>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Nutzer aktualisieren</button>
+  </form>
+  <a href="/admin/users" class="btn btn-secondary mt-3">Zurück zur Nutzerliste</a>
+</div>
+</body>
+</html>

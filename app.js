@@ -20,6 +20,11 @@ const passport = require("./utils/passportConfig");
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    next();
+});
+
 let ejs = require('ejs');
 app.set("view engine", "ejs");
 
@@ -32,9 +37,9 @@ app.use("/", express.static(path.join(__dirname, "node_modules", "bootstrap-tabl
 app.use("/font", express.static(path.join(__dirname, "node_modules", "bootstrap-icons", "font"))); // bootstrap-icons
 
 const authRoutes = require("./routes/authRoutes");
-// const adminRoutes = require("./routes/adminRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 app.use("/", authRoutes); // alle nutzer
-// app.use("/admin", adminRoutes); // nur admins
+app.use("/admin", adminRoutes); // nur admins
 
 
 
