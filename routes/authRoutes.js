@@ -29,4 +29,8 @@ router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
 
 router.post("/domain/:domain/editDns/:zoneId/:recordId", dnsController.postEditDns)
 
+router.get("/domain/:domain/createDns/SRV", dnsController.getCreateDnsSRV)
+
+
+
 module.exports = router;
