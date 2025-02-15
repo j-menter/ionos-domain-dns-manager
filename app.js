@@ -1,13 +1,27 @@
 require('dotenv').config();
 const express = require('express');
 const path = require("path");
+const flash = require("connect-flash");
+const session = require("express-session");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 
+// Session und Passport initialisieren
+app.use(session({ 
+    secret: "idazfrzVOsUsFstgEVd282)dF(?", 
+    resave: false, 
+    saveUninitialized: false 
+}));
+
+app.use(flash());
+
+// passport
+const passport = require("./utils/passportConfig");
+app.use(passport.initialize());
+app.use(passport.session());
 
 let ejs = require('ejs');
 app.set("view engine", "ejs");
-
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -16,7 +30,6 @@ app.use("/js", express.static(path.join(__dirname, "node_modules", "bootstrap", 
 app.use("/css", express.static(path.join(__dirname, "node_modules", "bootstrap", "dist", "css"))); // bootstrap
 app.use("/", express.static(path.join(__dirname, "node_modules", "bootstrap-table", "dist"))); // bootstrap-table
 app.use("/font", express.static(path.join(__dirname, "node_modules", "bootstrap-icons", "font"))); // bootstrap-icons
-
 
 const authRoutes = require("./routes/authRoutes");
 // const adminRoutes = require("./routes/adminRoutes");

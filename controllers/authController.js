@@ -2,6 +2,10 @@ const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 const { API_GET_DOMAIN_RECORDS } = require("../utils/API_GET_DOMAIN_RECORDS");
 const { API_POST_DELETE_DNS_RECORD } = require("../utils/API_POST_DELETE_DNS_RECORD");
 
+exports.getLogin = (req, res) => {
+  res.render("login", { errorMessages: req.flash("error") });
+};
+
 exports.getFqdn = async (req, res) => {
   try {
       // Abrufen der DNS-Zonen

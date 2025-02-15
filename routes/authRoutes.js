@@ -1,10 +1,23 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
 
 const dnsController = require("../controllers/dnsController");
 const authController = require("../controllers/authController");
 
-router.get("/", authController.getFqdn)
+const isAuthenticated = require("../middleware/isAuthenticated");
+
+router.get("/", authController.getLogin)
+router.post("/login", passport.authenticate("local", {
+  successRedirect: "/fqdn",
+  failureRedirect: "/",
+  failureFlash: "Ungültige Anmeldedaten",
+}));
+
+// Hier wird die Middleware verwendet
+router.use(isAuthenticated);
+
+router.get("/fqdn", authController.getFqdn)
 
 router.get("/domain/:domain", authController.getDomainDetails)
 router.get("/domain/:domain/createDns", authController.getDnsTable)
