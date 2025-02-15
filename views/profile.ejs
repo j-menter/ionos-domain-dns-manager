@@ -1,0 +1,27 @@
+<%- include('partials/header') -%>
+<div class="container mt-5">
+  <h1 class="mb-4">Benutzerinformationen</h1>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><%= user.benutzername %></h5>
+      <p class="card-text">
+        <strong>Email:</strong> <%= user.email %><br>
+        <strong>Admin:</strong> <%= user.isAdmin ? 'Ja' : 'Nein' %>
+      </p>
+      <hr>
+      <h6>Zugelassene Domains:</h6>
+      <% if (user.domains && user.domains.length > 0) { %>
+        <ul class="list-group list-group-flush">
+          <% user.domains.forEach(function(domain) { %>
+            <li class="list-group-item"><%= domain.name %></li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <p>Keine Domains zugewiesen.</p>
+      <% } %>
+    </div>
+  </div>
+  <a href="/fqdn" class="btn btn-secondary mt-3">Zurück</a>
+</div>
+</body>
+</html>
