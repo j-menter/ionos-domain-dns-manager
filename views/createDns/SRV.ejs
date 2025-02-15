@@ -1,0 +1,114 @@
+<%- include('../partials/header') -%>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">SRV-Record hinzufügen</h1>
+    
+    <div class="form-container">
+        <form action="/domain/<%= domain %>/createDns/SRV" method="POST">
+            <div class="form-group">
+                <label for="service">Service</label>
+                <input type="text" id="service" name="service" class="form-control" placeholder="_sip, _xmpp ...">
+            </div>
+            
+            <div class="form-group">
+                <label for="protocol">Protokoll</label>
+                <select id="protocol" name="protocol" class="form-control">
+                    <option value="TCP">TCP</option>
+                    <option value="UDP">UDP</option>
+                    <option value="TLS">TLS</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="hostname">Hostname</label>
+                <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ...">
+            </div>
+            
+            <div class="form-group">
+                <label for="target">Zeigt auf</label>
+                <input type="text" id="target" name="target" class="form-control" placeholder="ziel-domain.de">
+            </div>
+            
+            <div class="form-group">
+                <label for="priority">Priorität</label>
+                <input type="number" id="priority" name="priority" class="form-control" min="0" max="65535">
+            </div>
+            
+            <div class="form-group">
+                <label for="weight">Gewichtung</label>
+                <input type="number" id="weight" name="weight" class="form-control" min="0" max="65535">
+            </div>
+            
+            <div class="form-group">
+                <label for="port">Port</label>
+                <input type="number" id="port" name="port" class="form-control" min="0" max="65535">
+            </div>
+            
+            <div class="form-group">
+                <label for="ttl">TTL</label>
+                <select id="ttl" name="ttl" class="form-control">
+                    <option value="60">1 Minute</option>
+                    <option value="300">5 Minuten</option>
+                    <option value="1800">30 Minuten</option>
+                    <option value="3600" selected>1 Stunde</option>
+                    <option value="86400">24 Stunden</option>
+                </select>
+            </div>
+            
+            <div class="preview">
+                <p><strong>Vorschau:</strong> <span id="previewRecord"></span></p>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
+    .preview {
+        margin-top: 15px;
+        font-size: 14px;
+    }
+</style>
+
+<script>
+    function updatePreview() {
+        const domain = "<%= domain %>";
+        const service = document.getElementById('service').value.trim();
+        const protocol = document.getElementById('protocol').value;
+        const hostname = document.getElementById('hostname').value.trim();
+        const target = document.getElementById('target').value.trim();
+        const priority = document.getElementById('priority').value || 0;
+        const weight = document.getElementById('weight').value || 0;
+        const port = document.getElementById('port').value || 0;
+        const ttl = document.getElementById('ttl').value;
+        
+        document.getElementById('previewRecord').textContent = `_${service}._${protocol}.${hostname}.${domain} ${ttl} IN SRV ${priority} ${weight} ${port} ${target}`;
+    }
+    
+    document.querySelectorAll('input, select').forEach(element => {
+        element.addEventListener('input', updatePreview);
+    });
+
+    updatePreview();
+</script>
+
+<%- include('../partials/footer') -%>
