@@ -5,7 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
-    "create-initial-users": "node utils/seed.js"
+    "create-initial-users": "node utils/seedUsers.js",
+    "read-domains": "node utils/seedDomains.js",
+    "dbdeploy": "npx prisma migrate deploy",
+    "prisma": "npx prisma"
   },
   "keywords": [],
   "author": "",
