@@ -4,18 +4,17 @@ const { API_POST_DELETE_DNS_RECORD } = require("../utils/API_POST_DELETE_DNS_REC
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-
 exports.getLogin = (req, res) => {
   res.render("login", { errorMessages: req.flash("error") });
 };
 
 exports.getProfile = async (req, res) => {    
-  const userWithDomains = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: req.user.id },
     include: { domains: true }
   });
-  
-  res.render('profile', { user: userWithDomains });
+
+  res.render('profile', { user });
 };
 
 exports.getFqdn = async (req, res) => {
