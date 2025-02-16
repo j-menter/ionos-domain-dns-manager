@@ -10,7 +10,7 @@
     <div class="ms-auto">
       <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          Benutzer verwalten
+          <%= user ? user.benutzername : 'Anmelden' %>
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
           <% if (user && user.isAdmin) { %>
