@@ -51,6 +51,7 @@ router.get("/domain/:domain/createDns/CNAME", dnsController.getCreateDnsCNAME)
 router.get("/domain/:domain/createDns/CAA", dnsController.getCreateDnsCAA)
 
 router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
+router.get("/domain/:domain/createDns/SPF", dnsController.getCreateDnsSPF)
 
 router.post("/domain/:domain/editDns/:zoneId/:recordId", dnsController.postEditDns)
 
