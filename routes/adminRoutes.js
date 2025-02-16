@@ -15,6 +15,7 @@ router.get('/', adminController.getListUsers);
 // Formular zum Erstellen eines neuen Nutzers anzeigen
 router.get('/users/create', adminController.getCreateUserForm);
 router.get('/users/edit/:id', adminController.getEditUserForm);
+router.post('/users/edit/:id', adminController.postEditUser);
 
 // Neuen Nutzer anlegen
 router.post('/users/create', adminController.postCreateUser);

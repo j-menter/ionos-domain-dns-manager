@@ -1,3 +1,5 @@
+const {API_GET_DOMAINS} = require('../utils/API_GET_DOMAINS');
+
 // controllers/adminController.js
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
@@ -81,3 +83,46 @@ exports.getEditUserForm = async (req, res) => {
     }
 };
 
+exports.postEditUser = async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { benutzername, email, password, isAdmin, domainIds } = req.body;
+      
+      // Basisdaten für den User aktualisieren
+      const updateData = {
+        benutzername,
+        email,
+        isAdmin: isAdmin === 'on' || isAdmin === true,
+      };
+      
+      // Passwort nur aktualisieren, wenn ein neues eingegeben wurde
+      if (password && password.trim() !== "") {
+        updateData.passwordHash = await bcrypt.hash(password, 10);
+      }
+      
+      // domainIds: Stelle sicher, dass es ein Array ist
+      let domainSet = [];
+      if (domainIds) {
+        // Falls nur ein Wert übermittelt wurde, mache ihn zu einem Array
+        domainSet = Array.isArray(domainIds)
+          ? domainIds.map(id => ({ id: parseInt(id) }))
+          : [{ id: parseInt(domainIds) }];
+      }
+      
+      // Update mit Many-to-Many-Relation: Ersetze die Domains des Users
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          ...updateData,
+          domains: {
+            set: domainSet
+          }
+        }
+      });
+      
+      res.redirect('/admin');
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Fehler beim Aktualisieren des Nutzers");
+    }
+  };
