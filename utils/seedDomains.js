@@ -1,7 +1,7 @@
 // seedDomains.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const {API_GET_DOMAINS} = require('./API_GET_DOMAINS');
+const { API_GET_DOMAINS } = require('./API_GET_DOMAINS');
 
 async function seedDomains() {
   const apiDomains = await API_GET_DOMAINS(); 
@@ -9,7 +9,7 @@ async function seedDomains() {
   try {
     // Wir gehen davon aus, dass es bereits einen Admin gibt,
     // der als Besitzer der Domain-Einträge verwendet wird.
-    // Hier suchen wir beispielsweise nach einem User mit der E-Mail 'admin@example.com'
+    // Hier suchen wir beispielsweise nach einem User mit der E-Mail 'admin@test.de'
     const adminUser = await prisma.user.findUnique({
       where: { email: 'admin@test.de' }
     });
@@ -21,20 +21,23 @@ async function seedDomains() {
 
     // Für jeden Domain-Datensatz aus der API prüfen wir, ob der Eintrag bereits existiert.
     for (const domainData of apiDomains) {
-      // Wir prüfen hier nach dem Namen, da die API-ID (z. B. ein UUID-String)
-      // nicht in unserem Schema verwendet wird und unser Schema einen auto-increment Integer als ID vorsieht.
+      // Wir prüfen hier nach dem Namen und ob der Admin bereits zu den zugeordneten Nutzern gehört.
       const exists = await prisma.domain.findFirst({
         where: {
           name: domainData.name,
-          userId: adminUser.id // Wir ordnen die Domains dem Admin zu.
-        }
+          users: {
+            some: {
+              id: adminUser.id,
+            },
+          },
+        },
       });
 
       if (!exists) {
         await prisma.domain.create({
           data: {
             name: domainData.name,
-            user: { connect: { id: adminUser.id } }
+            users: { connect: { id: adminUser.id } }
           }
         });
         console.log(`Domain ${domainData.name} wurde hinzugefügt.`);
