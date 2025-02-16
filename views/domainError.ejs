@@ -1,0 +1,13 @@
+<%- include('partials/header') -%>
+
+<div class="container mt-5">
+  <div class="alert alert-danger text-center" role="alert">
+    <h4 class="alert-heading">Zugriff verweigert</h4>
+    <p>Sie haben keine Berechtigung, auf die Domain "<strong><%= domain %></strong>" zuzugreifen.</p>
+    <hr>
+    <p class="mb-0">Bitte überprüfen Sie Ihre zugewiesenen Domains oder kehren Sie zur Domain-Übersicht zurück.</p>
+    <a href="/fqdn" class="btn btn-primary mt-3">Zurück zur Domain-Übersicht</a>
+  </div>
+</div>
+
+<%- include('partials/footer') -%>

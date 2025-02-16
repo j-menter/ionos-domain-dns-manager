@@ -46,7 +46,8 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
+      include: { domains: true } // Domains mitladen
     });
     done(null, user);
   } catch (err) {

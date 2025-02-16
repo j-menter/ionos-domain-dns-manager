@@ -6,6 +6,7 @@ const dnsController = require("../controllers/dnsController");
 const authController = require("../controllers/authController");
 
 const isAuthenticated = require("../middleware/isAuthenticated");
+const checkDomainOwnership = require("../middleware/checkDomainOwnership");
 
 router.get("/", authController.getLogin)
 router.post("/login", passport.authenticate("local", {
@@ -27,6 +28,8 @@ router.use(isAuthenticated);
 router.get('/profile', authController.getProfile);
 
 router.get("/fqdn", authController.getFqdn)
+
+router.use("/domain/:domain", checkDomainOwnership); // checkt berechtigungen für domain
 
 router.get("/domain/:domain", authController.getDomainDetails)
 router.get("/domain/:domain/createDns", authController.getDnsTable)
