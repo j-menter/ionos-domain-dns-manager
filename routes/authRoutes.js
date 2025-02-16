@@ -24,9 +24,7 @@ router.get('/logout', (req, res, next) => {
 // Hier wird die Middleware verwendet
 router.use(isAuthenticated);
 
-router.get('/profile', (req, res) => {
-  res.render('profile', { user: req.user });
-});
+router.get('/profile', authController.getProfile);
 
 router.get("/fqdn", authController.getFqdn)
 
