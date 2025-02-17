@@ -3,21 +3,14 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>CAA-Record hinzufügen</h4>
+      <h4>CAA‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
       <form action="/domain/<%= domain %>/createDns/CAA" method="POST">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
-          <input
-            type="text"
-            id="recordType"
-            name="type"
-            class="form-control"
-            value="CAA"
-            readonly
-          >
+          <input type="text" id="recordType" name="type" class="form-control" value="CAA" readonly>
         </div>
 
         <!-- Hostname -->
@@ -29,6 +22,7 @@
             name="hostname"
             class="form-control"
             placeholder="@, subdomain ..."
+            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
           >
         </div>
 
@@ -41,6 +35,7 @@
             name="value"
             class="form-control"
             placeholder="caauthority.de, abuse@domain.de"
+            value="<%= typeof record !== 'undefined' && record.value ? record.value : '' %>"
           >
         </div>
 
@@ -48,8 +43,8 @@
         <div class="mb-3">
           <label for="flag" class="form-label">Flag</label>
           <select id="flag" name="flag" class="form-select">
-            <option value="0" selected>0 (Nicht kritisch)</option>
-            <option value="1">128 (Kritisch)</option>
+            <option value="0" <%= typeof record !== 'undefined' && record.flag == '0' ? 'selected' : (!record ? 'selected' : '') %>>0 (Nicht kritisch)</option>
+            <option value="1" <%= typeof record !== 'undefined' && record.flag == '1' ? 'selected' : '' %>>128 (Kritisch)</option>
           </select>
         </div>
 
@@ -57,13 +52,13 @@
         <div class="mb-3">
           <label for="caType" class="form-label">Typ</label>
           <select id="caType" name="caType" class="form-select">
-            <option value="issue" selected>
+            <option value="issue" <%= typeof record !== 'undefined' && record.caType === 'issue' ? 'selected' : 'selected' %>>
               Issue - Zertifizierungsstelle (CA) Festlegen
             </option>
-            <option value="issuewild">
+            <option value="issuewild" <%= typeof record !== 'undefined' && record.caType === 'issuewild' ? 'selected' : '' %>>
               Issuewild - CA darf Wildcard-Zertifikate ausstellen
             </option>
-            <option value="iodef">
+            <option value="iodef" <%= typeof record !== 'undefined' && record.caType === 'iodef' ? 'selected' : '' %>>
               IODEF - CA stellt eine E-Mail-Adresse zur Kontaktaufnahme bereit
             </option>
           </select>
@@ -73,13 +68,13 @@
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60">1 Minute</option>
-            <option value="300">5 Minuten</option>
-            <option value="1800">30 Minuten</option>
-            <option value="3600" selected>1 Stunde</option>
-            <option value="86400">24 Stunden</option>
-            <option value="172800">2 Tage</option>
-            <option value="604800">1 Woche</option>
+            <option value="60" <%= (typeof record !== 'undefined' && record.ttl == '60') || typeof record === 'undefined' ? 'selected' : 'selected' %>>1 Minute</option>
+            <option value="300" <%= typeof record !== 'undefined' && record.ttl == '300' ? 'selected' : '' %>>5 Minuten</option>
+            <option value="1800" <%= typeof record !== 'undefined' && record.ttl == '1800' ? 'selected' : '' %>>30 Minuten</option>
+            <option value="3600" <%= typeof record !== 'undefined' && record.ttl == '3600' ? 'selected' : '' %>>1 Stunde</option>
+            <option value="86400" <%= typeof record !== 'undefined' && record.ttl == '86400' ? 'selected' : '' %>>24 Stunden</option>
+            <option value="172800" <%= typeof record !== 'undefined' && record.ttl == '172800' ? 'selected' : '' %>>2 Tage</option>
+            <option value="604800" <%= typeof record !== 'undefined' && record.ttl == '604800' ? 'selected' : '' %>>1 Woche</option>
           </select>
         </div>
 
@@ -87,16 +82,18 @@
         <div class="mb-3">
           <p>
             <strong>Vorschau:</strong>
-            <span id="previewRecord"><%= domain %> 3600 IN CAA ""</span>
+            <span id="previewRecord">
+              <%= domain %> <%= typeof record !== 'undefined' && record.ttl ? record.ttl : '3600' %> IN CAA <%= typeof record !== 'undefined' && record.flag ? record.flag : '0' %> <%= typeof record !== 'undefined' && record.caType ? record.caType : 'issue' %> "<%= typeof record !== 'undefined' && record.value ? record.value : '""' %>"
+            </span>
           </p>
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">
-            Abbrechen
-          </a>
-          <button type="submit" class="btn btn-primary">Speichern</button>
+          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <button type="submit" class="btn btn-primary">
+            <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
+          </button>
         </div>
       </form>
     </div>

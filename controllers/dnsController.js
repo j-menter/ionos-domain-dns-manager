@@ -68,36 +68,40 @@ exports.getCreateDnsAAAA = (req, res) => {
 };
 
 exports.getCreateDnsTXT = (req, res) => {
-  
-  res.render("createDns/TXT", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/TXT", { domain: req.params.domain, record });
 };
 
 exports.getCreateDnsCNAME = (req, res) => {
-  
-  res.render("createDns/CNAME", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/CNAME", { domain: req.params.domain, record });
 };
 
 exports.getCreateDnsCAA = (req, res) => {
-  
-  res.render("createDns/CAA", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/CAA", { domain: req.params.domain, record });
 };
 
 exports.getCreateDnsNS = (req, res) => {
-  
-  res.render("createDns/NS", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/NS", { domain: req.params.domain, record });
 };
 
 exports.getCreateDnsMX = (req, res) => {
-  
-  res.render("createDns/MX", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/MX", { domain: req.params.domain, record });
 };
 exports.getCreateDnsSRV = (req, res) => {
-  
-  res.render("createDns/SRV", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/SRV", { domain: req.params.domain, record });
 };
 exports.getCreateDnsSPF = (req, res) => {
-  
-  res.render("createDns/SPF_(TXT)", { domain: req.params.domain });
+  const record = "";
+  res.render("createDns/SPF_(TXT)", { domain: req.params.domain, record });
+};
+exports.getCreateDnsIonosSPF = (req, res) => {
+  const record = "";
+  res.render("createDns/IONOS_SPF_(TXT)", { domain: req.params.domain, record });
 };
 
 exports.getEditDns = async (req, res) => {

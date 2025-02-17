@@ -3,7 +3,7 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>SRV-Record hinzufügen</h4>
+      <h4>SRV‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
       <form action="/domain/<%= domain %>/createDns/SRV" method="POST">
@@ -16,6 +16,7 @@
             name="service"
             class="form-control"
             placeholder="_sip, _xmpp ..."
+            value="<%= typeof record !== 'undefined' && record.service ? record.service : '' %>"
           >
         </div>
 
@@ -23,9 +24,9 @@
         <div class="mb-3">
           <label for="protocol" class="form-label">Protokoll</label>
           <select id="protocol" name="protocol" class="form-select">
-            <option value="TCP">TCP</option>
-            <option value="UDP">UDP</option>
-            <option value="TLS">TLS</option>
+            <option value="TCP" <%= typeof record !== 'undefined' && record.protocol === 'TCP' ? 'selected' : '' %>>TCP</option>
+            <option value="UDP" <%= typeof record !== 'undefined' && record.protocol === 'UDP' ? 'selected' : '' %>>UDP</option>
+            <option value="TLS" <%= typeof record !== 'undefined' && record.protocol === 'TLS' ? 'selected' : '' %>>TLS</option>
           </select>
         </div>
 
@@ -38,10 +39,11 @@
             name="hostname"
             class="form-control"
             placeholder="@, www ..."
+            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
           >
         </div>
 
-        <!-- Zeigt auf -->
+        <!-- Zeigt auf (Target) -->
         <div class="mb-3">
           <label for="target" class="form-label">Zeigt auf</label>
           <input
@@ -50,6 +52,7 @@
             name="target"
             class="form-control"
             placeholder="ziel-domain.de"
+            value="<%= typeof record !== 'undefined' && record.target ? record.target : '' %>"
           >
         </div>
 
@@ -63,6 +66,7 @@
             class="form-control"
             min="0"
             max="65535"
+            value="<%= typeof record !== 'undefined' && record.priority ? record.priority : '' %>"
           >
         </div>
 
@@ -76,6 +80,7 @@
             class="form-control"
             min="0"
             max="65535"
+            value="<%= typeof record !== 'undefined' && record.weight ? record.weight : '' %>"
           >
         </div>
 
@@ -89,6 +94,7 @@
             class="form-control"
             min="0"
             max="65535"
+            value="<%= typeof record !== 'undefined' && record.port ? record.port : '' %>"
           >
         </div>
 
@@ -96,11 +102,11 @@
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60">1 Minute</option>
-            <option value="300">5 Minuten</option>
-            <option value="1800">30 Minuten</option>
-            <option value="3600" selected>1 Stunde</option>
-            <option value="86400">24 Stunden</option>
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (!record ? 'selected' : '') %>>1 Minute</option>
+            <option value="300" <%= typeof record !== 'undefined' && record.ttl === '300' ? 'selected' : '' %>>5 Minuten</option>
+            <option value="1800" <%= typeof record !== 'undefined' && record.ttl === '1800' ? 'selected' : '' %>>30 Minuten</option>
+            <option value="3600" <%= typeof record !== 'undefined' && record.ttl === '3600' ? 'selected' : '' %>>1 Stunde</option>
+            <option value="86400" <%= typeof record !== 'undefined' && record.ttl === '86400' ? 'selected' : '' %>>24 Stunden</option>
           </select>
         </div>
 
@@ -114,8 +120,10 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="window.history.back()">Abbrechen</button>
-          <button type="submit" class="btn btn-primary">Speichern</button>
+          <button type="button" class="btn btn-secondary" onclick="window.history.back();">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">
+            <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
+          </button>
         </div>
       </form>
     </div>
@@ -125,7 +133,7 @@
 <script>
   function updatePreview() {
     const domain   = "<%= domain %>";
-    const service  = document.getElementById('service').value.trim();
+    const service  = document.getElementById('service').value.trim() || (typeof record !== 'undefined' && record.service ? record.service : '');
     const protocol = document.getElementById('protocol').value;
     const hostname = document.getElementById('hostname').value.trim();
     const target   = document.getElementById('target').value.trim();
@@ -141,6 +149,7 @@
       `_${service}._${protocol}.${fqdn} ${ttl} IN SRV ${priority} ${weight} ${port} ${target}`;
   }
 
+  // Alle relevanten Felder lauschen
   document.querySelectorAll('input, select').forEach(el => {
     el.addEventListener('input', updatePreview);
     el.addEventListener('change', updatePreview);

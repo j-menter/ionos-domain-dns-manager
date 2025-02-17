@@ -1,0 +1,108 @@
+<%- include('../partials/header') -%>
+
+<div class="container py-5">
+  <div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-header text-center">
+      <h4>IONOS SPF-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
+    </div>
+    <div class="card-body">
+      <form action="/domain/<%= domain %>/createDns/SPF" method="POST">
+        <!-- Typ -->
+        <div class="mb-3">
+          <label for="recordType" class="form-label">Typ</label>
+          <input
+            type="text"
+            class="form-control"
+            id="recordType"
+            name="type"
+            value="TXT"
+            readonly
+          >
+        </div>
+
+        <!-- Hostname -->
+        <div class="mb-3">
+          <label for="hostname" class="form-label">Hostname</label>
+          <input
+            type="text"
+            class="form-control"
+            id="hostname"
+            name="hostname"
+            placeholder="@, subdomain ..."
+            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : `` %>"
+          >
+        </div>
+
+        <!-- SPF Wert -->
+        <div class="mb-3">
+          <label for="spfValue" class="form-label">Wert (SPF)</label>
+          <input
+            type="text"
+            class="form-control"
+            id="spfValue"
+            name="spfValue"
+            placeholder="v=spf1 include:_spf-eu.ionos.com ~all"
+            value="<%= typeof record !== 'undefined' && record.spfValue ? record.spfValue : 'v=spf1 include:_spf-eu.ionos.com ~all' %>"
+          >
+          <small class="form-text text-muted">
+            Beispiel: v=spf1 include:_spf-eu.ionos.com ~all
+          </small>
+        </div>
+
+        <!-- TTL -->
+        <div class="mb-3">
+          <label for="ttl" class="form-label">TTL</label>
+          <select class="form-select" id="ttl" name="ttl">
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (typeof record === 'undefined' ? 'selected' : '') %>>1 Minute</option>
+            <option value="300" <%= typeof record !== 'undefined' && record.ttl === '300' ? 'selected' : '' %>>5 Minuten</option>
+            <option value="1800" <%= typeof record !== 'undefined' && record.ttl === '1800' ? 'selected' : '' %>>30 Minuten</option>
+            <option value="3600" <%= typeof record !== 'undefined' && record.ttl === '3600' ? 'selected' : '' %>>1 Stunde</option>
+            <option value="86400" <%= typeof record !== 'undefined' && record.ttl === '86400' ? 'selected' : '' %>>24 Stunden</option>
+            <option value="172800" <%= typeof record !== 'undefined' && record.ttl === '172800' ? 'selected' : '' %>>2 Tage</option>
+            <option value="604800" <%= typeof record !== 'undefined' && record.ttl === '604800' ? 'selected' : '' %>>1 Woche</option>
+          </select>
+        </div>
+
+        <!-- Vorschau -->
+        <div class="mb-3">
+          <label class="form-label"><strong>Vorschau:</strong></label>
+            <span id="previewRecord">
+              <%= domain %> <%= typeof record !== 'undefined' && record.ttl ? record.ttl : '3600' %> IN TXT "<%= typeof record !== 'undefined' && record.spfValue ? record.spfValue : 'v=spf1' %>"
+            </span>
+          </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" onclick="window.history.back();">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">
+            <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const hostnameInput = document.getElementById('hostname');
+  const ttlSelect = document.getElementById('ttl');
+  const spfValueInput = document.getElementById('spfValue');
+  const previewRecord = document.getElementById('previewRecord');
+
+  function updatePreview() {
+    const domain = "<%= domain %>";
+    const hostname = hostnameInput.value.trim();
+    const spfValue = spfValueInput.value.trim() || 'v=spf1';
+    const ttl = ttlSelect.value;
+    const fqdn = hostname ? `${hostname}.${domain}` : domain;
+    previewRecord.textContent = `${fqdn} ${ttl} IN TXT "${spfValue}"`;
+  }
+
+  hostnameInput.addEventListener('input', updatePreview);
+  ttlSelect.addEventListener('change', updatePreview);
+  spfValueInput.addEventListener('input', updatePreview);
+
+  updatePreview();
+</script>
+
+<%- include('../partials/footer') -%>

@@ -52,12 +52,14 @@ router.get("/domain/:domain/createDns/CAA", dnsController.getCreateDnsCAA)
 
 router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
 router.get("/domain/:domain/createDns/SPF", dnsController.getCreateDnsSPF)
+router.get("/domain/:domain/createDns/IONOS-SPF", dnsController.getCreateDnsIonosSPF)
 router.get("/domain/:domain/createDns/MX", dnsController.getCreateDnsMX)
 
 router.post("/domain/:domain/editDns/:zoneId/:recordId", dnsController.postEditDns)
 
 router.get("/domain/:domain/createDns/SRV", dnsController.getCreateDnsSRV)
 
+// router.get("/domain/:domain/createDns/TLSA", dnsController.getCreateDnsTLSA)
 
 
 module.exports = router;

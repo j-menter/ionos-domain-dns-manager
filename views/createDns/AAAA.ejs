@@ -3,7 +3,7 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>AAAA-Record hinzufügen</h4>
+      <h4>AAAA‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
       <form action="/domain/<%= domain %>/createDns/AAAA" method="POST">
@@ -16,48 +16,78 @@
         <!-- Hostname -->
         <div class="mb-3">
           <label for="hostname" class="form-label">Hostname</label>
-          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ...">
+          <input
+            type="text"
+            id="hostname"
+            name="hostname"
+            class="form-control"
+            placeholder="@, www ..."
+            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
+          >
         </div>
 
         <!-- Destination -->
         <div class="mb-3">
           <label for="destination" class="form-label">Zeigt auf</label>
-          <input type="text" id="destination" name="destination" class="form-control" placeholder="0:0:0:0:0:ffff:c0a8:101 (IPv6-Adresse)">
+          <input
+            type="text"
+            id="destination"
+            name="destination"
+            class="form-control"
+            placeholder="0:0:0:0:0:ffff:c0a8:101 (IPv6-Adresse)"
+            value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>"
+          >
         </div>
 
         <!-- TTL -->
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" selected>1 Minute</option>
-            <option value="300">5 Minuten</option>
-            <option value="1800">30 Minuten</option>
-            <option value="3600">1 Stunde</option>
-            <option value="86400">24 Stunden</option>
-            <option value="172800">2 Tage</option>
-            <option value="604800">1 Woche</option>
+            <option value="60" <%= (typeof record !== 'undefined' && record.ttl == '60') || typeof record === 'undefined' ? 'selected' : '' %>>1 Minute</option>
+            <option value="300" <%= typeof record !== 'undefined' && record.ttl == '300' ? 'selected' : '' %>>5 Minuten</option>
+            <option value="1800" <%= typeof record !== 'undefined' && record.ttl == '1800' ? 'selected' : '' %>>30 Minuten</option>
+            <option value="3600" <%= typeof record !== 'undefined' && record.ttl == '3600' ? 'selected' : '' %>>1 Stunde</option>
+            <option value="86400" <%= typeof record !== 'undefined' && record.ttl == '86400' ? 'selected' : '' %>>24 Stunden</option>
+            <option value="172800" <%= typeof record !== 'undefined' && record.ttl == '172800' ? 'selected' : '' %>>2 Tage</option>
+            <option value="604800" <%= typeof record !== 'undefined' && record.ttl == '604800' ? 'selected' : '' %>>1 Woche</option>
           </select>
         </div>
 
         <!-- Vorschau -->
         <div class="mb-3">
-          <p><strong>Vorschau:</strong> <span id="previewRecord"><%= domain %> 3600 IN AAAA</span></p>
+          <p>
+            <strong>Vorschau:</strong>
+            <span id="previewRecord">
+              <%= domain %> <%= typeof record !== 'undefined' && record.ttl ? record.ttl : '3600' %> IN AAAA
+            </span>
+          </p>
           <p>
             <strong>Vorschau für www:</strong>
-            <span id="wwwRecord" class="text-decoration-line-through">www.<%= domain %> 3600 IN AAAA</span>
+            <span id="wwwRecord" class="text-decoration-line-through">
+              www.<%= domain %> <%= typeof record !== 'undefined' && record.ttl ? record.ttl : '3600' %> IN AAAA
+            </span>
           </p>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="include_www" name="include_www" value="false">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="include_www"
+              name="include_www"
+              value="false"
+              <%= typeof record !== 'undefined' && record.include_www ? 'checked' : '' %>
+            >
             <label class="form-check-label" for="include_www">
-              DNS-Record für www hinzufügen
+              DNS‑Record für www hinzufügen
             </label>
           </div>
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
-          <button type="submit" class="btn btn-primary">Speichern</button>
+          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <button type="submit" class="btn btn-primary">
+            <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
+          </button>
         </div>
       </form>
     </div>
@@ -78,7 +108,7 @@
     const hostname = hostnameInput.value.trim();
     const destination = destinationInput.value.trim() || "IPv6-Adresse";
     const ttl = ttlSelect.value;
-    
+
     if (hostname) {
       previewRecord.textContent = `${hostname}.${domain} ${ttl} IN AAAA ${destination}`;
       wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN AAAA ${destination}`;
@@ -88,11 +118,10 @@
     }
   }
 
-  // Initialen Wert für include_www setzen
+  // Checkbox initialisieren
   includeWwwCheckbox.value = includeWwwCheckbox.checked ? "true" : "false";
   includeWwwCheckbox.addEventListener('change', function() {
     this.value = this.checked ? "true" : "false";
-    // Toggle Textdekoration mittels Bootstrap Utility-Klasse
     if (this.checked) {
       wwwRecord.classList.remove('text-decoration-line-through');
     } else {
@@ -104,7 +133,7 @@
   hostnameInput.addEventListener('input', updatePreview);
   ttlSelect.addEventListener('change', updatePreview);
   destinationInput.addEventListener('input', updatePreview);
-  
+
   // Initiale Vorschau setzen
   updatePreview();
 </script>
