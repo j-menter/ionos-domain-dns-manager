@@ -41,7 +41,7 @@ router.post("/domain/:domain/delete/:recordId", dnsController.postDeleteDnsRecor
 router.get("/domain/:domain/createDns/:type", dnsController.getCreateDns)
 
 //dns record post create
-router.post("/domain/:domain/createDns/:type", 
+router.post("/domain/:domain/createDns/:type",
   //middleware zur routenerzeugung
   (req, res, next) => {
   const type = req.params.type;
@@ -54,7 +54,17 @@ router.post("/domain/:domain/createDns/:type",
 });
 
 //dns record get edit views
-router.get("/domain/:domain/editDns/:type/:zoneId/:recordId", dnsController.getEditDnsA)
+router.get("/domain/:domain/editDns/:type/:zoneId/:recordId", 
+  //middleware zur routenerzeugung
+  (req, res, next) => {
+  const type = req.params.type;
+  const handler = dnsController[`getEditDns${type}`];
+  if (handler) {
+    return handler(req, res, next);
+  } else {
+    return next(new Error("Ungültiger Record-Typ"));
+  }
+});
 
 //dns record post edit
 router.post("/domain/:domain/editDns/:zoneId/:recordId/:type", 
