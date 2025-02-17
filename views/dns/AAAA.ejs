@@ -3,10 +3,10 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>AAAA‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
+      <h4>AAAA-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/AAAA" method="POST">
+      <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/AAAA` : 'createDns/AAAA' %>" method="POST">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -22,7 +22,7 @@
             name="hostname"
             class="form-control"
             placeholder="@, www ..."
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
+            value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName) : '' %>"
           >
         </div>
 
@@ -35,7 +35,7 @@
             name="destination"
             class="form-control"
             placeholder="0:0:0:0:0:ffff:c0a8:101 (IPv6-Adresse)"
-            value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>"
+            value="<%= typeof record !== 'undefined' && record.content ? record.content : '' %>"
           >
         </div>
 
@@ -77,14 +77,14 @@
               <%= typeof record !== 'undefined' && record.include_www ? 'checked' : '' %>
             >
             <label class="form-check-label" for="include_www">
-              DNS‑Record für www hinzufügen
+              DNS-Record für www hinzufügen
             </label>
           </div>
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
