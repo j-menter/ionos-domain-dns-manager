@@ -23,10 +23,12 @@
             class="form-control"
             placeholder="@, subdomain ..."
             value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName) : '' %>"
-            readonly
+            <%= typeof record !== 'undefined' ? "readonly" : '' %>
             >
-          <small>Der Hostname kann nicht geändert werden.</small>
-        </div>
+            <% if (typeof record !== 'undefined') { %>
+              <small>Der Hostname kann nicht geändert werden.</small>
+            <% } %>
+                    </div>
 
         <!-- Wert -->
         <div class="mb-3">
