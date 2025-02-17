@@ -6,7 +6,7 @@
       <h4>MX-Record hinzufügen</h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/MX" method="POST">
+      <form action="/domain/<%= domain %>/createDns/MX" method="POST" id="mxForm">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -47,7 +47,11 @@
 
         <!-- Vorschau -->
         <div class="mb-3">
-          <p><strong>Vorschau:</strong> <span id="previewRecord"><%= domain %> 3600 IN MX 10 mx01.beispiel.de</span></p>
+
+          <p>
+            <strong>Vorschau:</strong>
+            <span id="previewRecord"><%= domain %> 3600 IN MX 10 mx01.beispiel.de</span>
+          </p>
         </div>
 
         <!-- Buttons -->

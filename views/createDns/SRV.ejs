@@ -1,0 +1,152 @@
+<%- include('../partials/header') -%>
+
+<div class="container py-5">
+  <div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-header text-center">
+      <h4>SRV-Record hinzufügen</h4>
+    </div>
+    <div class="card-body">
+      <form action="/domain/<%= domain %>/createDns/SRV" method="POST">
+        <!-- Service -->
+        <div class="mb-3">
+          <label for="service" class="form-label">Service</label>
+          <input
+            type="text"
+            id="service"
+            name="service"
+            class="form-control"
+            placeholder="_sip, _xmpp ..."
+          >
+        </div>
+
+        <!-- Protokoll -->
+        <div class="mb-3">
+          <label for="protocol" class="form-label">Protokoll</label>
+          <select id="protocol" name="protocol" class="form-select">
+            <option value="TCP">TCP</option>
+            <option value="UDP">UDP</option>
+            <option value="TLS">TLS</option>
+          </select>
+        </div>
+
+        <!-- Hostname -->
+        <div class="mb-3">
+          <label for="hostname" class="form-label">Hostname</label>
+          <input
+            type="text"
+            id="hostname"
+            name="hostname"
+            class="form-control"
+            placeholder="@, www ..."
+          >
+        </div>
+
+        <!-- Zeigt auf -->
+        <div class="mb-3">
+          <label for="target" class="form-label">Zeigt auf</label>
+          <input
+            type="text"
+            id="target"
+            name="target"
+            class="form-control"
+            placeholder="ziel-domain.de"
+          >
+        </div>
+
+        <!-- Priorität -->
+        <div class="mb-3">
+          <label for="priority" class="form-label">Priorität</label>
+          <input
+            type="number"
+            id="priority"
+            name="priority"
+            class="form-control"
+            min="0"
+            max="65535"
+          >
+        </div>
+
+        <!-- Gewichtung -->
+        <div class="mb-3">
+          <label for="weight" class="form-label">Gewichtung</label>
+          <input
+            type="number"
+            id="weight"
+            name="weight"
+            class="form-control"
+            min="0"
+            max="65535"
+          >
+        </div>
+
+        <!-- Port -->
+        <div class="mb-3">
+          <label for="port" class="form-label">Port</label>
+          <input
+            type="number"
+            id="port"
+            name="port"
+            class="form-control"
+            min="0"
+            max="65535"
+          >
+        </div>
+
+        <!-- TTL -->
+        <div class="mb-3">
+          <label for="ttl" class="form-label">TTL</label>
+          <select id="ttl" name="ttl" class="form-select">
+            <option value="60">1 Minute</option>
+            <option value="300">5 Minuten</option>
+            <option value="1800">30 Minuten</option>
+            <option value="3600" selected>1 Stunde</option>
+            <option value="86400">24 Stunden</option>
+          </select>
+        </div>
+
+        <!-- Vorschau -->
+        <div class="mb-3">
+          <p>
+            <strong>Vorschau:</strong>
+            <span id="previewRecord"></span>
+          </p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" onclick="window.history.back()">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updatePreview() {
+    const domain   = "<%= domain %>";
+    const service  = document.getElementById('service').value.trim();
+    const protocol = document.getElementById('protocol').value;
+    const hostname = document.getElementById('hostname').value.trim();
+    const target   = document.getElementById('target').value.trim();
+    const priority = document.getElementById('priority').value || 0;
+    const weight   = document.getElementById('weight').value || 0;
+    const port     = document.getElementById('port').value || 0;
+    const ttl      = document.getElementById('ttl').value;
+
+    // Falls ein Hostname eingegeben wurde, wird er vor der Domain ergänzt.
+    const fqdn = hostname ? `${hostname}.${domain}` : domain;
+    // Format der Vorschau: _service._protocol.[fqdn] [ttl] IN SRV [priority] [weight] [port] [target]
+    document.getElementById('previewRecord').textContent =
+      `_${service}._${protocol}.${fqdn} ${ttl} IN SRV ${priority} ${weight} ${port} ${target}`;
+  }
+
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
+  });
+
+  updatePreview();
+</script>
+
+<%- include('../partials/footer') -%>
