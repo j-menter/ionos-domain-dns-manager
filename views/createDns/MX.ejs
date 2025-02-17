@@ -3,10 +3,10 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>MX-Record hinzufügen</h4>
+      <h4>MX-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/MX" method="POST" id="mxForm">
+      <form action="/domain/<%= domain %>/createDns/MX" method="POST">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -16,48 +16,49 @@
         <!-- Hostname -->
         <div class="mb-3">
           <label for="hostname" class="form-label">Hostname</label>
-          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, subdomain">
+          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, subdomain" value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>">
         </div>
 
         <!-- Zeigt auf -->
         <div class="mb-3">
           <label for="destination" class="form-label">Zeigt auf</label>
-          <input type="text" id="destination" name="destination" class="form-control" placeholder="mx01.beispiel.de">
+          <input type="text" id="destination" name="destination" class="form-control" placeholder="mx01.beispiel.de" value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>">
         </div>
 
         <!-- Prio -->
         <div class="mb-3">
           <label for="priority" class="form-label">Prio</label>
-          <input type="text" id="priority" name="priority" class="form-control" placeholder="10">
+          <input type="text" id="priority" name="priority" class="form-control" placeholder="10" value="<%= typeof record !== 'undefined' && record.priority ? record.priority : '' %>">
         </div>
 
         <!-- TTL -->
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" selected>1 Minute</option>
-            <option value="300">5 Minuten</option>
-            <option value="1800">30 Minuten</option>
-            <option value="3600">1 Stunde</option>
-            <option value="86400">24 Stunden</option>
-            <option value="172800">2 Tage</option>
-            <option value="604800">1 Woche</option>
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : '' %>>1 Minute</option>
+            <option value="300" <%= typeof record !== 'undefined' && record.ttl === '300' ? 'selected' : '' %>>5 Minuten</option>
+            <option value="1800" <%= typeof record !== 'undefined' && record.ttl === '1800' ? 'selected' : '' %>>30 Minuten</option>
+            <option value="3600" <%= typeof record !== 'undefined' && record.ttl === '3600' ? 'selected' : 'selected' %>>1 Stunde</option>
+            <option value="86400" <%= typeof record !== 'undefined' && record.ttl === '86400' ? 'selected' : '' %>>24 Stunden</option>
+            <option value="172800" <%= typeof record !== 'undefined' && record.ttl === '172800' ? 'selected' : '' %>>2 Tage</option>
+            <option value="604800" <%= typeof record !== 'undefined' && record.ttl === '604800' ? 'selected' : '' %>>1 Woche</option>
           </select>
         </div>
 
-        <!-- Vorschau -->
+        <!-- Vorschau (optional) -->
         <div class="mb-3">
 
           <p>
-            <strong>Vorschau:</strong>
+            <strong>Vorschau:</strong> 
             <span id="previewRecord"><%= domain %> 3600 IN MX 10 mx01.beispiel.de</span>
-          </p>
+        </p>
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
-          <button type="submit" class="btn btn-primary">Speichern</button>
+
+          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <button type="submit" class="btn btn-primary"><%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %></button>
         </div>
       </form>
     </div>

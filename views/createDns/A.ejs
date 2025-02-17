@@ -3,58 +3,66 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>A-Record hinzufügen</h4>
+      <h4>A-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
       <form action="/domain/<%= domain %>/createDns/A" method="POST" id="dnsForm">
+        <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
           <input type="text" id="recordType" name="type" class="form-control" value="A" readonly>
         </div>
 
+        <!-- Hostname -->
         <div class="mb-3">
           <label for="hostname" class="form-label">Hostname</label>
-          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ...">
+          <input type="text" id="hostname" name="hostname" class="form-control" placeholder="@, www ..." value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>">
         </div>
 
+        <!-- Zeigt auf -->
         <div class="mb-3">
           <label for="destination" class="form-label">Zeigt auf</label>
-          <input type="text" id="destination" name="destination" class="form-control" placeholder="192.168.1.1 (IPv4-Adresse)">
+          <input type="text" id="destination" name="destination" class="form-control" placeholder="192.168.1.1 (IPv4-Adresse)" value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>">
           <div class="invalid-feedback">
             Bitte geben Sie eine gültige IPv4-Adresse ein.
           </div>
         </div>
 
+        <!-- TTL -->
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" selected>1 Minute</option>
-            <option value="300">5 Minuten</option>
-            <option value="1800">30 Minuten</option>
-            <option value="3600">1 Stunde</option>
-            <option value="86400">24 Stunden</option>
-            <option value="172800">2 Tage</option>
-            <option value="604800">1 Woche</option>
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl == '60' ? 'selected' : '' %>>1 Minute</option>
+            <option value="300" <%= typeof record !== 'undefined' && record.ttl == '300' ? 'selected' : '' %>>5 Minuten</option>
+            <option value="1800" <%= typeof record !== 'undefined' && record.ttl == '1800' ? 'selected' : '' %>>30 Minuten</option>
+            <option value="3600" <%= typeof record !== 'undefined' && record.ttl == '3600' ? 'selected' : 'selected' %>>1 Stunde</option>
+            <option value="86400" <%= typeof record !== 'undefined' && record.ttl == '86400' ? 'selected' : '' %>>24 Stunden</option>
+            <option value="172800" <%= typeof record !== 'undefined' && record.ttl == '172800' ? 'selected' : '' %>>2 Tage</option>
+            <option value="604800" <%= typeof record !== 'undefined' && record.ttl == '604800' ? 'selected' : '' %>>1 Woche</option>
           </select>
         </div>
 
+        <!-- Vorschau -->
         <div class="mb-3">
           <p><strong>Vorschau:</strong> <span id="previewRecord"><%= domain %> 3600 IN A IPv4-Adresse</span></p>
-          <p>
-            <strong>Vorschau für www:</strong>
-            <span id="wwwRecord" style="text-decoration: line-through;">www.<%= domain %> 3600 IN A IPv4-Adresse</span>
-          </p>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="include_www" name="include_www" value="false">
-            <label class="form-check-label" for="include_www">
-              DNS-Record für www hinzufügen
-            </label>
+          <div class="mb-3">
+            <p>
+              <strong>Vorschau für www:</strong>
+              <span id="wwwRecord" class="text-decoration-line-through">www.<%= domain %> 3600 IN A IPv4-Adresse</span>
+            </p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="include_www" name="include_www" value="false">
+              <label class="form-check-label" for="include_www">
+                DNS-Record für www hinzufügen
+              </label>
+            </div>
           </div>
         </div>
 
+        <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary">Abbrechen</a>
-          <button type="submit" class="btn btn-primary" id="submitBtn">Speichern</button>
+          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <button type="submit" class="btn btn-primary" id="submitBtn"><%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %></button>
         </div>
       </form>
     </div>
@@ -72,65 +80,60 @@
   const dnsForm = document.getElementById('dnsForm');
 
   // Funktion zur Aktualisierung der Vorschau
-  function updatePreview() {
-    const domain = "<%= domain %>";
-    const hostname = hostnameInput.value.trim();
-    const destination = destinationInput.value.trim() || "IPv4-Adresse";
-    const ttl = ttlSelect.value;
+    function updatePreview() {
+        const domain = "<%= domain %>";
+        const hostname = hostnameInput.value.trim();
+        const destination = destinationInput.value.trim() || "IPv4-Adresse";
+        const ttl = ttlSelect.value;
 
-    if (hostname) {
-      previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
-      wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN A ${destination}`;
-    } else {
-      previewRecord.textContent = `${domain} ${ttl} IN A ${destination}`;
-      wwwRecord.textContent = `www.${domain} ${ttl} IN A ${destination}`;
+        if (hostname) {
+        previewRecord.textContent = `${hostname}.${domain} ${ttl} IN A ${destination}`;
+        wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN A ${destination}`;
+        } else {
+        previewRecord.textContent = `${domain} ${ttl} IN A ${destination}`;
+        wwwRecord.textContent = `www.${domain} ${ttl} IN A ${destination}`;
+        }
     }
-  }
 
   // Initialen Wert für include_www setzen
-  includeWwwCheckbox.value = includeWwwCheckbox.checked ? "true" : "false";
-  includeWwwCheckbox.addEventListener('change', function() {
-    this.value = this.checked ? "true" : "false";
-    wwwRecord.style.textDecoration = this.checked ? "none" : "line-through";
-  });
+    includeWwwCheckbox.value = includeWwwCheckbox.checked ? "true" : "false";
+    includeWwwCheckbox.addEventListener('change', function() {
+        this.value = this.checked ? "true" : "false";
+        if (this.checked) {
+        wwwRecord.classList.remove('text-decoration-line-through');
+        } else {
+        wwwRecord.classList.add('text-decoration-line-through');
+        }
+    });
 
-  // Event Listener für Hostname und TTL
-  hostnameInput.addEventListener('input', updatePreview);
-  ttlSelect.addEventListener('change', updatePreview);
+    hostnameInput.addEventListener('input', updatePreview);
+    ttlSelect.addEventListener('change', updatePreview);
 
-  // Regex zur Validierung einer IPv4-Adresse
-  const ipv4Regex = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)(\.(25[0-5]|2[0-4]\d|[01]?\d\d?)){3}$/;
-  
-  // Validierung und Vorschau für Destination
-  destinationInput.addEventListener('input', function() {
+    const ipv4Regex = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)(\.(25[0-5]|2[0-4]\d|[01]?\d\d?)){3}$/;
+    
+    destinationInput.addEventListener('input', function() {
+        updatePreview();
+        const value = destinationInput.value.trim();
+        if (ipv4Regex.test(value)) {
+        destinationInput.classList.remove('is-invalid');
+        destinationInput.classList.add('is-valid');
+        submitBtn.disabled = false;
+        } else {
+        destinationInput.classList.remove('is-valid');
+        destinationInput.classList.add('is-invalid');
+        submitBtn.disabled = true;
+        }
+    });
+
+    dnsForm.addEventListener('submit', function(e) {
+        const value = destinationInput.value.trim();
+        if (!ipv4Regex.test(value)) {
+        e.preventDefault();
+        destinationInput.focus();
+        }
+    });
+
     updatePreview();
-    const value = destinationInput.value.trim();
-
-    if (ipv4Regex.test(value)) {
-      destinationInput.classList.remove('is-invalid');
-      destinationInput.classList.add('is-valid');
-      submitBtn.disabled = false;
-    } else {
-      destinationInput.classList.remove('is-valid');
-      destinationInput.classList.add('is-invalid');
-      submitBtn.disabled = true;
-    }
-  });
-
-  // Formular-Submit blockieren, wenn Destination ungültig ist
-  dnsForm.addEventListener('submit', function(e) {
-    const value = destinationInput.value.trim();
-    if (!ipv4Regex.test(value)) {
-      e.preventDefault();
-      destinationInput.focus();
-    }
-  });
-
-  // Abbrechen-Button: JS-Navigation zurück
-  document.querySelector('.btn-secondary').addEventListener('click', function(e) {
-    e.preventDefault();
-    window.history.back();
-  });
 </script>
 
 <%- include('../partials/footer') -%>
