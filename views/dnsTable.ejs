@@ -2,14 +2,15 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Die aktuelle Domain aus der URL extrahieren
     const pathParts = window.location.pathname.split("/");
-    const domain = pathParts[2]; // "handyatelier.de" (je nach Position in der URL anpassen)
+    const domain = pathParts[2];
 
-    // Alle Links in der Tabelle anpassen
-    document.querySelectorAll(".clickable-row a").forEach((link) => {
-      const recordType = link.getAttribute("href").split("/").pop();
-      link.setAttribute("href", `/domain/${domain}/createDns/${recordType}`);
+    // Klickbare Zeilen: Alle <tr> mit data-record-type
+    document.querySelectorAll("tr.clickable-row").forEach(row => {
+      row.addEventListener("click", function () {
+        window.location.href = `/domain/${domain}/createDns/${this.getAttribute("data-record-type")}`;
+      });
+      row.style.cursor = "pointer";
     });
 
     // Header-Text aktualisieren
@@ -27,157 +28,85 @@
 </script>
 
 <style>
-  /* Standard Styles */
-  .table-wrapper {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #000;
-    background: #fff;
-    z-index: 2;
+  /* Fügt horizontale Linien zwischen den Zeilen hinzu */
+  table.table-striped tr {
+    border-bottom: 1px solid #dee2e6;
   }
-  .dns-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 12px;
-    overflow: hidden;
-    border-spacing: 0;
-  }
-  td {
-    padding: 0 !important;
-  }
-  .table-header {
-    background-color: #00164e;
-    color: #fff;
-  }
-  .th-cell {
-    padding: 10px;
-    text-align: left;
-  }
-  .th-cell-arrow {
-    padding: 10px;
-    text-align: right;
-  }
-  .clickable-row a {
-    display: block;
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-    color: inherit;
-    text-decoration: none;
-    background-color: #fff;
-  }
-  .clickable-row:hover a {
-    background-color: #D6EEEE;
-  }
-
-  /* Dark Mode Anpassungen über data-bs-theme="dark" */
-  [data-bs-theme="dark"] body {
-    background-color: #121212;
-    color: #e0e0e0;
-  }
-  [data-bs-theme="dark"] .table-wrapper {
-    background: #343a40;
-    border-color: #444;
-  }
-  [data-bs-theme="dark"] .dns-table {
-    background: #343a40;
-  }
-  [data-bs-theme="dark"] td,
-  [data-bs-theme="dark"] th {
-    color: #f8f9fa;
-  }
-  [data-bs-theme="dark"] .table-header {
-    background-color: #00164e; /* Alternativ kannst du hier eine dunklere Variante wählen */
-    color: #f8f9fa;
-  }
-  [data-bs-theme="dark"] .clickable-row a {
-    background-color: #343a40;
-    color: #f8f9fa;
-  }
-  [data-bs-theme="dark"] .clickable-row:hover a {
-    background-color: #495057;
-  }
-  /* Auch Buttons und Links im Header ggf. anpassen */
-  [data-bs-theme="dark"] .navbar,
-  [data-bs-theme="dark"] .dropdown-menu {
-    background-color: #343a40;
-    color: #f8f9fa;
-  }
-  [data-bs-theme="dark"] .dropdown-item {
-    color: #f8f9fa;
-  }
-  [data-bs-theme="dark"] .dropdown-item:hover {
-    background-color: #495057;
+  table.table-striped tr:last-child {
+    border-bottom: none;
   }
 </style>
 
 <div class="container my-4">
   <h1 class="text-center"></h1>
-  <a id="back-btn" href="" class="btn btn-primary btn-sm mb-2">Zurück</a>
+  <a id="back-btn" href="#" class="btn btn-primary btn-sm mb-2">Zurück</a>
   
-  <div class="table-wrapper">
-    <table class="dns-table">
-      <thead class="table-header">
-        <tr>
-          <th class="th-cell">Typ</th>
-          <th class="th-cell">Beschreibung</th>
-          <th class="th-cell th-cell-arrow"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="clickable-row">
-          <td><a href="/records/A"><strong>A</strong></a></td>
-          <td><a href="/records/A">Weist eine IPv4-Adresse zu.</a></td>
-          <td><a href="/records/A"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/AAAA"><strong>AAAA</strong></a></td>
-          <td><a href="/records/AAAA">Weist eine IPv6-Adresse zu.</a></td>
-          <td><a href="/records/AAAA"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/CAA"><strong>CAA</strong></a></td>
-          <td><a href="/records/CAA">Definiert einen SSL-Provider.</a></td>
-          <td><a href="/records/CAA"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/CNAME"><strong>CNAME</strong></a></td>
-          <td><a href="/records/CNAME">Erstellt einen Alias für eine andere Domain.</a></td>
-          <td><a href="/records/CNAME"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/MX"><strong>MX</strong></a></td>
-          <td><a href="/records/MX">Weist einen Mailserver zu.</a></td>
-          <td><a href="/records/MX"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/NS"><strong>NS</strong></a></td>
-          <td><a href="/records/NS">Weist einen alternativen Nameserver zu.</a></td>
-          <td><a href="/records/NS"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/SRV"><strong>SRV</strong></a></td>
-          <td><a href="/records/SRV">Definiert eine Serviceverbindung.</a></td>
-          <td><a href="/records/SRV"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/IONOS-SPF"><strong>IONOS SPF (TXT)</strong></a></td>
-          <td><a href="/records/IONOS-SPF">Legitimiert IONOS als E-Mail-Absender.</a></td>
-          <td><a href="/records/IONOS-SPF"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/SPF"><strong>SPF (TXT)</strong></a></td>
-          <td><a href="/records/SPF">Definiert legitime E-Mail-Sender.</a></td>
-          <td><a href="/records/SPF"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-        <tr class="clickable-row">
-          <td><a href="/records/TXT"><strong>TXT</strong></a></td>
-          <td><a href="/records/TXT">Fügt Textdaten wie DMARC oder DKIM hinzu.</a></td>
-          <td><a href="/records/TXT"><i class="bi bi-chevron-right"></i></a></td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="card" style="overflow: hidden;">
+    <div class="card-body p-0" >
+      <!-- Kompakte Tabelle mit Hover-Effekt und horizontalen Linien -->
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Typ</th>
+            <th>Beschreibung</th>
+            <th class="text-end"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr class="clickable-row" data-record-type="A">
+            <td><strong>A</strong></td>
+            <td>Weist eine IPv4-Adresse zu.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="AAAA">
+            <td><strong>AAAA</strong></td>
+            <td>Weist eine IPv6-Adresse zu.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="CAA">
+            <td><strong>CAA</strong></td>
+            <td>Definiert einen SSL-Provider.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="CNAME">
+            <td><strong>CNAME</strong></td>
+            <td>Erstellt einen Alias für eine andere Domain.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="MX">
+            <td><strong>MX</strong></td>
+            <td>Weist einen Mailserver zu.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="NS">
+            <td><strong>NS</strong></td>
+            <td>Weist einen alternativen Nameserver zu.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="SRV">
+            <td><strong>SRV</strong></td>
+            <td>Definiert eine Serviceverbindung.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="IONOS-SPF">
+            <td><strong>IONOS SPF (TXT)</strong></td>
+            <td>Legitimiert IONOS als E-Mail-Absender.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="SPF">
+            <td><strong>SPF (TXT)</strong></td>
+            <td>Definiert legitime E-Mail-Sender.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+          <tr class="clickable-row" data-record-type="TXT">
+            <td><strong>TXT</strong></td>
+            <td>Fügt Textdaten wie DMARC oder DKIM hinzu.</td>
+            <td class="text-end"><i class="bi bi-chevron-right"></i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
