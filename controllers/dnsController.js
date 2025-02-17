@@ -107,6 +107,40 @@ exports.postCreateDnsAAAA = async (req, res) => {
   }
 };
 
+exports.postCreateDnsCAA = async (req, res) => {
+  try {
+    const { domain } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, value, flag, caType, ttl = 3600, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@" )
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // Content zusammenbauen: Flag, caType und den Wert in Anführungszeichen
+    const content = `${flag} ${caType} "${value}"`;
+    
+    // CAA Record anlegen
+    await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, null, disabled);
+    console.log(`CAA Record für ${domainName} angelegt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des CAA-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 // get edit controller
 exports.getEditDnsA = async (req, res) => {
@@ -133,7 +167,36 @@ exports.getEditDnsAAAA = async (req, res) => {
     console.log("Record (AAAA) geladen:", record);
     res.render("dns/AAAA", { domain, record, getHostname });
   } catch (error) {
-    console.error("Fehler beim Laden des AAAA‑Records:", error);
+    console.error("Fehler beim Laden des AAAA-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getEditDnsCAA = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    
+    // Extrahiere Flag, CA-Type und Value aus record.content
+    // Erwartetes Format: "<flag> <caType> "<value>""
+    if (record.content) {
+      const regex = /^(\d+)\s+(\S+)\s+"(.+)"$/;
+      const match = record.content.match(regex);
+      if (match) {
+        record.flag = match[1];    // z.B. "1"
+        record.caType = match[2];  // z.B. "issuewild"
+        record.value = match[3];   // z.B. "caa@test.de"
+      } else {
+        console.warn("Content-Format passt nicht:", record.content);
+      }
+    }
+    
+    console.log("Record (CAA) geladen:", record);
+    res.render("dns/CAA", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des CAA-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -238,7 +301,42 @@ exports.postEditDnsAAAA = async (req, res) => {
     
     res.redirect(`/domain/${domain}`);
   } catch (error) {
-    console.error("Fehler beim Aktualisieren des AAAA‑Records:", error);
+    console.error("Fehler beim Aktualisieren des AAAA-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.postEditDnsCAA = async (req, res) => {
+  try {
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, value, flag, caType, ttl = 3600, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden (extra nicht aus url)
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // Content zusammenbauen: Flag, caType und den Wert in Anführungszeichen
+    const content = `${flag} ${caType} "${value}"`;
+    
+    await API_UPDATE_DNS_RECORD(domainId, recordId, content, ttl, null, disabled);
+
+    console.log(`CAA Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des CAA-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
