@@ -86,15 +86,20 @@ exports.getCreateDnsNS = (req, res) => {
   
   res.render("createDns/NS", { domain: req.params.domain });
 };
+
+exports.getCreateDnsMX = (req, res) => {
+  
+  res.render("createDns/MX", { domain: req.params.domain });
+};
+exports.getCreateDnsSRV = (req, res) => {
+  
+  res.render("createDns/SRV", { domain: req.params.domain });
+};
 exports.getCreateDnsSPF = (req, res) => {
   
   res.render("createDns/SPF_(TXT)", { domain: req.params.domain });
 };
 
-exports.getCreateDnsSRV = (req, res) => {
-  
-  res.render("createDns/SRV", { domain: req.params.domain });
-};
 exports.getEditDns = async (req, res) => {
   const zoneId = req.params.zoneId;
   const recordId = req.params.recordId;
