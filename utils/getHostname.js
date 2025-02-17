@@ -1,12 +1,17 @@
-function getHostname(name, root) {
-  if (name === root) {
+function getHostname(sub, domain) {
+  if (sub === domain) {
     return '@';
   }
-  const suffix = '.' + root;
-  if (name.endsWith(suffix)) {
-    return name.slice(0, -suffix.length);
+  const suffix = '.' + domain;
+  if (sub.endsWith(suffix)) {
+    return sub.slice(0, -suffix.length);
   }
-  return name;
+  return sub;
 }
 
 module.exports = {getHostname}
+
+/* 
+  getHostname("xyz.test.de", "test.de") // gibt "xyz" zurück
+  getHostname("irgendwas", "test.de") // gibt "irgendwas" zurück 
+*/
