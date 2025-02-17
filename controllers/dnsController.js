@@ -248,6 +248,20 @@ exports.getEditDnsCNAME = async (req, res) => {
   }
 };
 
+exports.getEditDnsTXT = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    // record enthält z.B. Felder wie hostname, destination, ttl, prio, disabled, etc.
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log(  "record", record)
+    res.render("dns/TXT", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des TXT-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 // post edit Controller
 exports.postEditDnsA = async (req, res) => {
@@ -416,6 +430,39 @@ exports.postEditDnsCNAME = async (req, res) => {
     res.redirect(`/domain/${domain}`);
   } catch (error) {
     console.error("Fehler beim Aktualisieren des CNAME-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+// TXT & SPF & IONOS SPF
+exports.postEditDnsTXT = async (req, res) => {
+  try {
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // CNAME Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
+    await API_UPDATE_DNS_RECORD(domainId, recordId,destination, ttl, null, disabled);
+    console.log(`TXT Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des TXT-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };

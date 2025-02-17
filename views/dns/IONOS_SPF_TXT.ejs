@@ -6,7 +6,7 @@
       <h4>IONOS SPF-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/SPF" method="POST">
+      <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/IONOS_SPF_TXT` : 'createDns/IONOS_SPF_TXT' %>" method="POST">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -29,7 +29,7 @@
             id="hostname"
             name="hostname"
             placeholder="@, subdomain ..."
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : `` %>"
+            value="<%= typeof record !== 'undefined' && record.content ? getHostname(name, rootName) : `` %>"
           >
         </div>
 
@@ -43,9 +43,10 @@
             name="spfValue"
             placeholder="v=spf1 include:_spf-eu.ionos.com ~all"
             value="<%= typeof record !== 'undefined' && record.spfValue ? record.spfValue : 'v=spf1 include:_spf-eu.ionos.com ~all' %>"
+            readonly
           >
           <small class="form-text text-muted">
-            Beispiel: v=spf1 include:_spf-eu.ionos.com ~all
+            SPF von IONOS
           </small>
         </div>
 
@@ -73,7 +74,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="window.history.back();">Abbrechen</button>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
