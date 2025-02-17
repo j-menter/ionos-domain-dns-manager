@@ -1,25 +1,40 @@
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 const { API_GET_DOMAIN_RECORDS } = require("../utils/API_GET_DOMAIN_RECORDS");
 const { API_POST_DELETE_DNS_RECORD } = require("../utils/API_POST_DELETE_DNS_RECORD");
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+exports.getLogin = (req, res) => {
+  res.render("login", { errorMessages: req.flash("error") });
+};
+
+exports.getProfile = async (req, res) => {    
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    include: { domains: true }
+  });
+
+  res.render('profile', { user });
+};
 
 exports.getFqdn = async (req, res) => {
   try {
-      // Abrufen der DNS-Zonen
-      const response = await API_GET_DOMAINS();
-      console.log("response ",response)
-      
-      // Extrahieren der relevanten Domain-Daten
-      const domains = response.map(domain => ({
-            name: domain.name,
-            id: domain.id,
-        }));
+    // Hole den aktuell eingeloggenen User mitsamt seinen Domains
+    const userWithDomains = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: { domains: true }
+    });
 
-        console.log("domains gemapped: ", domains)
-      // Rendern der EJS-Vorlage mit den Domain-Daten
-      res.render("fqdn", { domains });
+    // Wenn der User nicht existiert (sollte aber nicht der Fall sein, wenn er eingeloggt ist)
+    if (!userWithDomains) {
+      return res.status(404).send("Benutzer nicht gefunden");
+    }
+
+    // Render die View "fqdn" und übergebe nur die Domains des Users
+    res.render("fqdn", { domains: userWithDomains.domains });
   } catch (error) {
-      console.error("Fehler beim Abrufen der DNS-Zonen:", error);
-      res.status(500).send("Fehler beim Laden der Domains");
+    console.error("Fehler beim Abrufen der Domains:", error);
+    res.status(500).send("Fehler beim Laden der Domains");
   }
 };
 

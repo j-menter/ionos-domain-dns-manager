@@ -1,10 +1,35 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
 
 const dnsController = require("../controllers/dnsController");
 const authController = require("../controllers/authController");
 
-router.get("/", authController.getFqdn)
+const isAuthenticated = require("../middleware/isAuthenticated");
+const checkDomainOwnership = require("../middleware/checkDomainOwnership");
+
+router.get("/", authController.getLogin)
+router.post("/login", passport.authenticate("local", {
+  successRedirect: "/fqdn",
+  failureRedirect: "/",
+  failureFlash: "Ungültige Anmeldedaten",
+}));
+
+router.get('/logout', (req, res, next) => {
+  req.logout(function(err) { // Beachte: In neueren Passport-Versionen wird ein Callback benötigt
+    if (err) { return next(err); }
+    res.redirect('/'); // Leite nach dem Logout weiter
+  });
+});
+
+// Hier wird die Middleware verwendet
+router.use(isAuthenticated);
+
+router.get('/profile', authController.getProfile);
+
+router.get("/fqdn", authController.getFqdn)
+
+router.use("/domain/:domain", checkDomainOwnership); // checkt berechtigungen für domain
 
 router.get("/domain/:domain", authController.getDomainDetails)
 router.get("/domain/:domain/createDns", authController.getDnsTable)
@@ -26,6 +51,7 @@ router.get("/domain/:domain/createDns/CNAME", dnsController.getCreateDnsCNAME)
 router.get("/domain/:domain/createDns/CAA", dnsController.getCreateDnsCAA)
 
 router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
+router.get("/domain/:domain/createDns/SPF", dnsController.getCreateDnsSPF)
 
 router.post("/domain/:domain/editDns/:zoneId/:recordId", dnsController.postEditDns)
 
