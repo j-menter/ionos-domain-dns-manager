@@ -1,149 +1,141 @@
 const { API_POST_DNS_RECORDS } = require("../utils/API_POST_DNS_RECORDS");
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 const { API_GET_DNS_RECORD } = require("../utils/API_GET_DNS_RECORD");
+const { API_UPDATE_DNS_RECORD } = require("../utils/API_UPDATE_DNS_RECORD");
+const { API_POST_DELETE_DNS_RECORD } = require("../utils/API_POST_DELETE_DNS_RECORD");
 const { getHostname } = require("../utils/getHostname");
 
-exports.getCreateDnsA = (req, res) => {
-  
-  res.render("createDns/A", { domain: req.params.domain });
+
+exports.getDnsTable = async (req, res) => {
+
+  res.render("dnsTable");
 };
 
-exports.postCreateDns = async (req, res) => {
-  // const typeList = [ A, AAAA, CNAME, MX, NS, SOA, SRV, TXT, CAA, TLSA, SMIMEA, SSHFP, DS, HTTPS, SVCB, CERT, URI, RP, LOC, OPENPGPKEY ]
+exports.postDeleteDnsRecord = async (req, res) => {
+  console.log("löschvorgang");
+  const domain = req.params.domain;
+  const recordId = req.params.recordId;
+  const domainZoneId = req.body.domainZoneId;
 
+  console.log("lösche dns eintrag: ", domain, recordId, domainZoneId)
+
+  await API_POST_DELETE_DNS_RECORD(domainZoneId, recordId)
+
+
+  res.redirect(`/domain/${domain}`);
+};
+
+// get create controller
+exports.getCreateDns = async (req, res) => {
+  const { domain } = req.params;
+  let type = req.params.type;
+  // type 2 stelle aus url auslesen z.B /dns/A (create)
+  if (!type) {
+    const parts = req.originalUrl.split("/");
+    type = parts[parts.length - 1];
+  }
+  res.render(`dns/${type}`, { domain, record: {} });
+};
+
+// Post create Controller
+exports.postCreateDnsA = async (req, res) => {
   try {
-    const domain = req.params.domain;
+    const { domain } = req.params;
+    // Felder aus dem Formular:
+    const { type, hostname, destination, ttl = 300, include_www = false, prio = 0, disabled = false } = req.body;
     
-    const { type,  hostname, destination = "1.1.1.1" , ttl = 300, include_www = false, prio = 0, disabled = false } = req.body;
-    console.log("body:", req.body);
-
-
-    // Domains von der API abrufen (z. B. [{name: 'handyatelier.de', id: '...'}, ...])
+    // Domains abrufen
     const domains = await API_GET_DOMAINS();
-
-    // Passenden Domain-Eintrag anhand des Namens finden
     const domainObj = domains.find(d => d.name === domain);
-    console.log("domain obj gefunden", domainObj.name, domainObj)
+    if (!domainObj) return res.status(404).send("Domain not found");
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn Hostname leer oder "@" ist, dann Domain; sonst "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@" )
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+    
+    await API_POST_DNS_RECORDS(domainId, domainName, type, destination, ttl, prio, disabled);
+    console.log(`A-Record für ${domainName} angelegt.`);
+    
+    // Optional: Wenn include_www aktiviert ist, zusätzlichen Record anlegen
+    if (include_www === "true") {
+      const wwwRecordName = `www.${domainName}`;
+      await API_POST_DNS_RECORDS(domainId, wwwRecordName, type, destination, ttl, prio, disabled);
+      console.log(`A-Record für ${wwwRecordName} angelegt.`);
+    }
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des A-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
+// get edit controller
+exports.getEditDnsA = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    // record enthält z.B. Felder wie hostname, destination, ttl, prio, disabled, etc.
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log(  "record", record)
+    res.render("dns/A", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des A-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+// post edit Controller
+exports.postEditDnsA = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    // Aus dem Formular erhaltene Werte
+    const { type, hostname, destination, ttl, include_www, prio, disabled } = req.body;
+
+    // Domains über die API abrufen und passende Domain finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
     if (!domainObj) {
       console.error("Domain nicht gefunden:", domain);
       return res.status(404).send("Domain not found");
     }
     const domainId = domainObj.id;
-    console.log("domainZoneID gefunden", domainId)
 
-    // Record-Name bestimmen:
-    // - Wenn der eingegebene Hostname "@" (oder leer) ist, wird der Recordname zur Domain
-    // - Andernfalls: "hostname.domain"
-    const domainName = (hostname.trim() === "@" || hostname.trim() === "")
-      ? domain
-      : `${hostname.trim()}.${domain}`;
 
-    console.log("domainName", domainName)
-    const content = destination; // z.B IP-Adresse
+    // Nehme den neuen Hostnamen aus dem Formular und verwende, falls leer, den bisherigen Wert
+    const newHostname = (hostname && hostname.trim() !== "") ? hostname.trim() : hostname;
 
-    // DNS Record anlegen
-    await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled);
-    console.log(`DNS Record für ${domainName} angelegt.`);
+    // Verwende getHostname, um den Subdomain-Teil zu extrahieren
+    const subdomain = getHostname(newHostname, domain);
 
-    // Optional: Wenn die Checkbox "include_www" auf "true" gesetzt ist,
-    // wird ein zusätzlicher Record für "www.domain" angelegt.
+    // Damit wird sichergestellt, dass, wenn subdomain '@' ist, der Record-Name gleich der Domain bleibt
+    const domainName = subdomain === '@' ? domain : `${subdomain}.${domain}`;
+
+    // Aktualisiere den Record
+    await API_UPDATE_DNS_RECORD(zoneId, recordId, destination, ttl, prio, disabled) ;
+    console.log(`A-Record ${recordId} für ${domainName} aktualisiert.`);
+
+    // Optional: Bei aktivierter include_www-Checkbox ggf. einen zusätzlichen Record aktualisieren
     if (include_www === "true") {
       const wwwRecordName = `www.${domainName}`;
-      await API_POST_DNS_RECORDS(domainId, wwwRecordName, type, content, ttl, prio, disabled);
-      console.log(`DNS Record für ${wwwRecordName} angelegt.`);
+      await API_POST_DNS_RECORDS(domainId, wwwRecordName, type, destination, ttl, prio, disabled);
+      console.log(`A-Record für ${wwwRecordName} angelegt.`);
+    } else if (include_www === "false") {
+      // Wenn include_www deaktiviert ist, dann den www-Record löschen
+      const wwwRecordName = `www.${domainName}`;
+      const wwwRecord = await API_GET_DNS_RECORD(zoneId, wwwRecordName);
+      if (wwwRecord) {
+        await API_POST_DELETE_DNS_RECORD(zoneId, wwwRecord.id);
+        console.log(`A-Record für ${wwwRecordName} gelöscht.`);
+      }
     }
 
-    // Nach erfolgreicher Erstellung zur Domain-Seite umleiten
     res.redirect(`/domain/${domain}`);
   } catch (error) {
-    console.error("Fehler beim Anlegen des DNS Records:", error);
+    console.error("Fehler beim Aktualisieren des A-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
-
-exports.getCreateDnsAAAA = (req, res) => {
-  
-  res.render("createDns/AAAA", { domain: req.params.domain });
-};
-
-exports.getCreateDnsTXT = (req, res) => {
-  const record = "";
-  res.render("createDns/TXT", { domain: req.params.domain, record });
-};
-
-exports.getCreateDnsCNAME = (req, res) => {
-  const record = "";
-  res.render("createDns/CNAME", { domain: req.params.domain, record });
-};
-
-exports.getCreateDnsCAA = (req, res) => {
-  const record = "";
-  res.render("createDns/CAA", { domain: req.params.domain, record });
-};
-
-exports.getCreateDnsNS = (req, res) => {
-  const record = "";
-  res.render("createDns/NS", { domain: req.params.domain, record });
-};
-
-exports.getCreateDnsMX = (req, res) => {
-  const record = "";
-  res.render("createDns/MX", { domain: req.params.domain, record });
-};
-exports.getCreateDnsSRV = (req, res) => {
-  const record = "";
-  res.render("createDns/SRV", { domain: req.params.domain, record });
-};
-exports.getCreateDnsSPF = (req, res) => {
-  const record = "";
-  res.render("createDns/SPF_(TXT)", { domain: req.params.domain, record });
-};
-exports.getCreateDnsIonosSPF = (req, res) => {
-  const record = "";
-  res.render("createDns/IONOS_SPF_(TXT)", { domain: req.params.domain, record });
-};
-
-exports.getEditDns = async (req, res) => {
-  const zoneId = req.params.zoneId;
-  const recordId = req.params.recordId;
-  // API 
-  const recordData = await API_GET_DNS_RECORD(zoneId, recordId);
-  console.log("get record data", recordData)
-
-  const hostname= getHostname(recordData.name, recordData.rootName)
-  recordData.hostname = hostname;
-
-
-  res.render("createDns/editDns", { domain: req.params.domain, recordData});
-}
-
-exports.postEditDns = async (req, res) => {
-
-if (req.body.type === "A") {
-
-}
-switch (req.body.type) {
-  case "A":
-    
-    break;
-
-  case "AAAA":
-    
-    break;
-
-  case "CNAME":
-    
-    break;
-    
-  case "CAA":
-    
-    break;
-
-  default:
-    break;
-}
-
-  await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled);
-
-}

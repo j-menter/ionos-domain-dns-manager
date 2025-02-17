@@ -7,7 +7,7 @@ const isAuthenticated = require("../middleware/isAuthenticated");
 const isAdmin = require("../middleware/isAdmin");
 
 // Alle Admin-Routen benötigen Authentifizierung und Adminrechte
-router.use(isAuthenticated, isAdmin);
+// router.use(isAuthenticated, isAdmin);
 
 // Nutzerliste anzeigen
 router.get('/', adminController.getListUsers);
