@@ -141,6 +141,38 @@ exports.postCreateDnsCAA = async (req, res) => {
   }
 };
 
+exports.postCreateDnsCNAME = async (req, res) => {
+  try {
+    const { domain } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@" )
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    
+    // CAA Record anlegen
+    await API_POST_DNS_RECORDS(domainId, domainName, type, destination, ttl, null, disabled);
+    console.log(`CAA Record für ${domainName} angelegt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des CAA-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 // get edit controller
 exports.getEditDnsA = async (req, res) => {
@@ -197,6 +229,21 @@ exports.getEditDnsCAA = async (req, res) => {
     res.render("dns/CAA", { domain, record, getHostname });
   } catch (error) {
     console.error("Fehler beim Laden des CAA-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getEditDnsCNAME = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    // record enthält z.B. Felder wie hostname, destination, ttl, prio, disabled, etc.
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log(  "record", record)
+    res.render("dns/CNAME", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des CNAME-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -337,6 +384,38 @@ exports.postEditDnsCAA = async (req, res) => {
     res.redirect(`/domain/${domain}`);
   } catch (error) {
     console.error("Fehler beim Aktualisieren des CAA-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.postEditDnsCNAME = async (req, res) => {
+  try {
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // CNAME Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
+    await API_UPDATE_DNS_RECORD(domainId, recordId,destination, ttl, null, disabled);
+    console.log(`CNAME Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des CNAME-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };

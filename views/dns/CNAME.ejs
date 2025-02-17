@@ -3,10 +3,10 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>CNAME‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
+      <h4>CNAME-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/CNAME" method="POST">
+      <form id="cnameForm" action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/CNAME` : 'createDns/CNAME' %>" method="POST" novalidate>
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -22,7 +22,7 @@
             name="hostname" 
             class="form-control" 
             placeholder="www"
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
+            value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName) : '' %>"
           >
         </div>
 
@@ -35,15 +35,19 @@
             name="destination" 
             class="form-control" 
             placeholder="andere-domain.de"
-            value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>"
+            value="<%= typeof record !== 'undefined' && record.content ? record.content : '' %>"
+            required
           >
+          <div class="invalid-feedback">
+            Bitte geben Sie eine gültige Domain ein.
+          </div>
         </div>
 
         <!-- TTL -->
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" <%= typeof record !== 'undefined' && record.ttl == '60' ? 'selected' : (!record ? 'selected' : '') %>>1 Minute</option>
+            <option value="60" <%= (typeof record !== 'undefined' && record.ttl == '60') || typeof record === 'undefined' ? 'selected' : '' %>>1 Minute</option>
             <option value="300" <%= typeof record !== 'undefined' && record.ttl == '300' ? 'selected' : '' %>>5 Minuten</option>
             <option value="1800" <%= typeof record !== 'undefined' && record.ttl == '1800' ? 'selected' : '' %>>30 Minuten</option>
             <option value="3600" <%= typeof record !== 'undefined' && record.ttl == '3600' ? 'selected' : '' %>>1 Stunde</option>
@@ -65,7 +69,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
@@ -76,16 +80,20 @@
 </div>
 
 <script>
-  const hostnameInput = document.getElementById('hostname');
-  const ttlSelect = document.getElementById('ttl');
-  const destinationInput = document.getElementById('destination');
-  const previewRecord = document.getElementById('previewRecord');
+  const hostnameInput   = document.getElementById('hostname');
+  const ttlSelect       = document.getElementById('ttl');
+  const destinationInput= document.getElementById('destination');
+  const previewRecord   = document.getElementById('previewRecord');
+  const cnameForm       = document.getElementById('cnameForm');
+
+  // Regex zur Validierung einer Domain
+  const domainRegex = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
   function updatePreview() {
-    const domain = "<%= domain %>";
-    const hostname = hostnameInput.value.trim();
+    const domain    = "<%= domain %>";
+    const hostname  = hostnameInput.value.trim();
     const destination = destinationInput.value.trim() || '""';
-    const ttl = ttlSelect.value;
+    const ttl       = ttlSelect.value;
     
     if (hostname) {
       previewRecord.textContent = `${hostname}.${domain} ${ttl} IN CNAME ${destination}`;
@@ -94,9 +102,35 @@
     }
   }
 
+  // Funktion zur Validierung des "destination"-Feldes
+  function validateDestination() {
+    const value = destinationInput.value.trim();
+    if (domainRegex.test(value)) {
+      destinationInput.classList.remove('is-invalid');
+      destinationInput.classList.add('is-valid');
+      return true;
+    } else {
+      destinationInput.classList.remove('is-valid');
+      destinationInput.classList.add('is-invalid');
+      return false;
+    }
+  }
+
+  destinationInput.addEventListener('input', function() {
+    validateDestination();
+    updatePreview();
+  });
+  
   hostnameInput.addEventListener('input', updatePreview);
   ttlSelect.addEventListener('change', updatePreview);
-  destinationInput.addEventListener('input', updatePreview);
+
+  // Formular-Submit: Nur absenden, wenn die Destination gültig ist
+  cnameForm.addEventListener('submit', function(e) {
+    if (!validateDestination()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
 
   document.querySelector('.btn-secondary').addEventListener('click', function(e) {
     e.preventDefault();
