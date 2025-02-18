@@ -239,6 +239,60 @@ exports.postCreateDnsNS = async (req, res) => {
 };
 
 
+exports.postCreateDnsSRV = async (req, res) => {
+  try {
+    const { type, domain } = req.params;
+    let { service, protocol, hostname, destination, priority, weight, port, ttl, disabled = false } = req.body;
+    console.log('SRV Body:', req.body);
+
+    // Numerische Felder in Zahlen umwandeln
+    const parsedPriority = parseInt(priority, 10);
+    const parsedWeight = parseInt(weight, 10);
+    const parsedPort = parseInt(port, 10);
+    let parsedTtl = parseInt(ttl, 10);
+    console.log("parsed ttl", parsedTtl)
+
+    // Domains abrufen und den passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error('Domain nicht gefunden:', domain);
+      return res.status(404).send('Domain not found');
+    }
+    const domainId = domainObj.id;
+
+    // Bestimme den Record-Namen: Falls hostname leer oder "@" wird die Domain verwendet,
+    // ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === '@')
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+
+    // Service und Protokoll richtig formatieren
+    const formattedService = service.startsWith('_') ? service : `_${service}`;
+    const formattedProtocol = protocol.startsWith('_') ? protocol.toLowerCase() : `_${protocol.toLowerCase()}`;
+
+    const recordName = `${formattedService}.${formattedProtocol}.${domainName}`;
+
+    // Für SRV-Einträge enthält das Content-Feld "weight port destination"
+    // Oft wird beim Ziel (destination) ein absoluter Domainname (FQDN) benötigt,
+    // also ggf. mit abschließendem Punkt.
+    const target = destination.endsWith('.') ? destination : `${destination}.`;
+    const recordContent = `${parsedWeight} ${parsedPort} ${target}`;
+
+    console.log('SRV Record Name:', recordName, '| Content:', recordContent);
+
+    //async function API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, prio, disabled) {
+
+    await API_POST_DNS_RECORDS(domainId, recordName, type, recordContent, parsedTtl, parsedPriority, disabled);
+    console.log(`SRV Record für ${domainName} angelegt.`);
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error('Fehler beim Anlegen des SRV-Records:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
 
 
 exports.postCreateDnsIONOS_SPF_TXT = async (req, res) => {
@@ -412,6 +466,69 @@ exports.getEditDnsNS = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+exports.getEditDnsSRV = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+
+    // --- Aufteilung von record.name ---
+    // Erwartetes Format: _service._protocol.[hostname].domain
+    // Zuerst den Domainteil (".domain") entfernen:
+    const domainSuffix = `.${domain}`;
+    let nameWithoutDomain = record.name;
+    if (record.name.endsWith(domainSuffix)) {
+      nameWithoutDomain = record.name.slice(0, -domainSuffix.length);
+    }
+    // Aufteilen: z. B. "_aaa._udp.aaa" -> ["_aaa", "_udp", "aaa"]
+    const nameParts = nameWithoutDomain.split('.');
+    // Service: "_aaa" → "aaa"
+    const service = nameParts[0] ? nameParts[0].replace(/^_/, '') : '';
+    // Protokoll: "_udp" → "UDP" (für die Auswahl wird meist Großschrift erwartet)
+    const protocol = nameParts[1] ? nameParts[1].replace(/^_/, '').toUpperCase() : '';
+    // Hostname: Falls vorhanden (alles, was danach kommt); ansonsten leer
+    const hostname = (nameParts.length > 2) ? nameParts.slice(2).join('.') : '';
+
+    // --- Aufteilung von record.content ---
+    // Erwartetes Format: "weight port destination"
+    // Z. B.: "33 333 aaa.de." → Gewicht: "33", Port: "333", Destination: "aaa.de" (ohne abschließenden Punkt)
+    const contentParts = record.content.split(' ');
+    const weight = contentParts[0] || '';
+    const port = contentParts[1] || '';
+    let destination = contentParts.slice(2).join(' ') || '';
+    if (destination.endsWith('.')) {
+      destination = destination.slice(0, -1);
+    }
+
+    // --- Für die Editiermaske die Felder richtig zuordnen ---
+    // Im Formular soll in "Service" nur der Service (ohne führenden Unterstrich) stehen.
+    // Im "Protokoll" soll beispielsweise "UDP" angezeigt werden.
+    // Das "Hostname"-Feld soll nur den Hostnamen enthalten (also z. B. "aaa").
+    // Im "Zeigt auf"-Feld (destination) soll nur die Ziel-Domain stehen (z. B. "aaa.de").
+    record.service = service;
+    record.protocol = protocol;
+    // Damit der Helper getHostname() im Template funktioniert, setzen wir:
+    record.rootName = domain; // z. B. "handyatelier.de"
+    record.name = hostname;   // nur der Hostname, z. B. "aaa"
+    // Überschreiben des Content-Feldes: Hier soll nur noch die Destination stehen
+    record.content = destination;
+    // Gewicht und Port separat übergeben:
+    record.weight = weight;
+    record.port = port;
+    // priority, ttl und disabled bleiben unverändert (werden direkt aus der API übernommen)
+
+    console.log("Record (SRV) geladen:", record);
+    res.render("dns/SRV", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des SRV-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+
 
 
 exports.getEditDnsTXT = async (req, res) => {
@@ -665,6 +782,60 @@ exports.postEditDnsNS = async (req, res) => {
     res.redirect(`/domain/${domain}`);
   } catch (error) {
     console.error("Fehler beim Aktualisieren des NS-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.postEditDnsSRV = async (req, res) => {
+  try {
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular (Service und Protocol müssen jetzt mitübertragen werden)
+    const { type, service, protocol, hostname, destination, priority, weight, port, ttl, disabled = false } = req.body;
+
+    // Numerische Felder in Zahlen umwandeln
+    const parsedPriority = parseInt(priority, 10);
+    const parsedWeight   = parseInt(weight, 10);
+    const parsedPort     = parseInt(port, 10);
+    const parsedTtl      = parseInt(ttl, 10);
+
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+
+    // Bestimme den FQDN: Falls hostname leer oder "@" ist, wird die Domain verwendet, ansonsten "hostname.domain"
+    const fqdn = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+
+    // Service und Protokoll richtig formatieren:
+    // - Service: führender Unterstrich (z.B. _aaa)
+    // - Protocol: führender Unterstrich und in Kleinbuchstaben (z.B. _udp)
+    const formattedService  = service.startsWith('_') ? service : `_${service}`;
+    const formattedProtocol = protocol.startsWith('_') ? protocol.toLowerCase() : `_${protocol.toLowerCase()}`;
+
+    // Zusammenbau des Record-Namens: _service._protocol.fqdn
+    const recordName = `${formattedService}.${formattedProtocol}.${fqdn}`;
+
+    // Destination: sicherstellen, dass ein abschließender Punkt vorhanden ist (FQDN)
+    const target = destination.endsWith('.') ? destination : `${destination}.`;
+
+    // Zusammenbau des Content-Feldes für SRV-Einträge: "weight port destination"
+    const recordContent = `${parsedWeight} ${parsedPort} ${target}`;
+
+    // async function API_UPDATE_DNS_RECORD(zoneId, recordId, destination, ttl, prio, disabled, hostname) {
+
+    await API_UPDATE_DNS_RECORD(domainId, recordId, recordContent, parsedTtl, parsedPriority, disabled, recordName);
+
+    console.log(`SRV Record für ${fqdn} aktualisiert.`);
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des SRV-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
