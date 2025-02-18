@@ -6,7 +6,7 @@
       <h4>NS-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/NS" method="POST">
+      <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/NS` : 'createDns/NS' %>" method="POST">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -29,8 +29,12 @@
             name="hostname"
             class="form-control"
             placeholder="@, www ..."
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
-          >
+            value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName)  : '' %>"
+            <%= typeof record !== 'undefined' ? "readonly" : '' %>
+            >
+            <% if (typeof record !== 'undefined') { %>
+              <small>Der Hostname kann nicht geändert werden.</small>
+            <% } %>
         </div>
 
         <!-- Wert -->
@@ -42,8 +46,8 @@
             name="destination"
             class="form-control"
             placeholder="ns1.eigener-server.de"
-            value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>"
-          >
+            value="<%= typeof record !== 'undefined' && record.content ? record.content : '' %>"
+            >
           <small class="form-text text-muted">
             "Zeigt auf" muss mindestens eine Domain sein (XX.YY) - auch Sub-Subdomains sind erlaubt.
           </small>
@@ -53,7 +57,7 @@
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" <%= typeof record !== 'undefined' && record.ttl == '60' ? 'selected' : (!record ? 'selected' : '') %>>1 Minute</option>
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (typeof record === 'undefined' ? 'selected' : '') %>>1 Minute</option>
             <option value="300" <%= typeof record !== 'undefined' && record.ttl == '300' ? 'selected' : '' %>>5 Minuten</option>
             <option value="1800" <%= typeof record !== 'undefined' && record.ttl == '1800' ? 'selected' : '' %>>30 Minuten</option>
             <option value="3600" <%= typeof record !== 'undefined' && record.ttl == '3600' ? 'selected' : '' %>>1 Stunde</option>
@@ -75,7 +79,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>

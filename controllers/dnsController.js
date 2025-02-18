@@ -207,6 +207,37 @@ exports.postCreateDnsMX = async (req, res) => {
   }
 };
 
+exports.postCreateDnsNS = async (req, res) => {
+  try {
+    const { domain } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, priority, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+          
+    // MX Record anlegen
+    await API_POST_DNS_RECORDS(domainId, domainName, type, destination, ttl, null, disabled);
+    console.log(`NS Record für ${domainName} angelegt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des NS-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 
 
@@ -348,6 +379,7 @@ exports.getEditDnsCNAME = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 exports.getEditDnsMX = async (req, res) => {
   try {
     const { domain, recordId, zoneId } = req.params;
@@ -363,6 +395,20 @@ exports.getEditDnsMX = async (req, res) => {
     res.render("dns/MX", { domain, record, getHostname });
   } catch (error) {
     console.error("Fehler beim Laden des MX-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getEditDnsNS = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log("Record (NS) geladen:", record);
+    res.render("dns/NS", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des NS-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -585,6 +631,40 @@ exports.postEditDnsMX = async (req, res) => {
     res.redirect(`/domain/${domain}`);
   } catch (error) {
     console.error("Fehler beim Aktualisieren des MX-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.postEditDnsNS = async (req, res) => {
+  try {
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, priority, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+          
+    // MX-Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
+    await API_UPDATE_DNS_RECORD(domainId, recordId, destination, ttl, null, disabled);
+
+
+    console.log(`NS Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des NS-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
