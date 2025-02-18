@@ -173,6 +173,107 @@ exports.postCreateDnsCNAME = async (req, res) => {
   }
 };
 
+exports.postCreateDnsMX = async (req, res) => {
+  try {
+    const { domain } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, priority, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+    
+    // Inhalt des MX-Records zusammensetzen: Priority und Destination
+    const content = `${priority} ${destination}`;
+      
+    // MX Record anlegen
+    await API_POST_DNS_RECORDS(domainId, domainName, type, content, ttl, null, disabled);
+    console.log(`MX Record für ${domainName} angelegt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des MX-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+
+
+exports.postCreateDnsIONOS_SPF_TXT = async (req, res) => {
+  try {
+    const { domain } = req.params;
+    // Felder aus dem Formular – beachte: hier heißt das Feld jetzt spfValue!
+    const { type, hostname, spfValue, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // TXT Record (SPF) anlegen – hier wird der SPF-Wert als content übergeben
+    await API_POST_DNS_RECORDS(domainId, domainName, type, spfValue, ttl, null, disabled);
+    console.log(`IONOS_SPF_TXT Record für ${domainName} angelegt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des IONOS_SPF_TXT-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+
+exports.postCreateDnsTXT = async (req, res) => {
+  try {
+    const { domain } = req.params;
+    // Felder aus dem Formular – beachte: hier heißt das Feld jetzt spfValue!
+    const { type, hostname, destination, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // TXT Record (SPF) anlegen – hier wird der SPF-Wert als content übergeben
+    await API_POST_DNS_RECORDS(domainId, domainName, type, spfValue, ttl, null, disabled);
+    console.log(`IONOS_SPF_TXT Record für ${domainName} angelegt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Anlegen des IONOS_SPF_TXT-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 // get edit controller
 exports.getEditDnsA = async (req, res) => {
@@ -247,6 +348,25 @@ exports.getEditDnsCNAME = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+exports.getEditDnsMX = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    record.priority = record.prio;
+    
+
+    console.log("record parts", record.prio , " und ", record.content)
+    
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log("record", record);
+    res.render("dns/MX", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des MX-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 exports.getEditDnsTXT = async (req, res) => {
   try {
@@ -433,6 +553,42 @@ exports.postEditDnsCNAME = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+exports.postEditDnsMX = async (req, res) => {
+  try {
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, priority, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+    
+    // Inhalt des MX-Records zusammensetzen: Priority und Destination
+      
+    // MX-Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
+    await API_UPDATE_DNS_RECORD(domainId, recordId, destination, ttl, priority, disabled);
+
+    console.log(`MX Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des MX-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 // TXT & SPF & IONOS SPF
 exports.postEditDnsTXT = async (req, res) => {
