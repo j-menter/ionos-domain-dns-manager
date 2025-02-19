@@ -23,13 +23,13 @@ router.get('/logout', (req, res, next) => {
 });
 
 // Hier wird die Middleware verwendet
-// router.use(isAuthenticated);
+process.env.NODE_ENV === "development" ? "" : router.use(isAuthenticated);
 
 router.get('/profile', authController.getProfile);
 
 router.get("/fqdn", authController.getFqdn)
 
-// router.use("/domain/:domain", checkDomainOwnership); // checkt berechtigungen für domain
+process.env.NODE_ENV === "development" ? "" : router.use("/domain/:domain", checkDomainOwnership); // checkt berechtigungen für domain
 
 router.get("/domain/:domain", authController.getDomainDetails)
 router.get("/domain/:domain/createDns", dnsController.getDnsTable)
