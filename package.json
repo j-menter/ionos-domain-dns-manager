@@ -23,7 +23,8 @@
     "verwaltung",
     "dns management",
     "security"
-  ],  "author": "Jonas Menter",
+  ],
+  "author": "Jonas Menter",
   "license": "ISC",
   "description": "Ein Open Source DNS-Verwaltungstool, das sämtliche IONOS-Operationen repliziert. Mit Login und Drittzugriffsverwaltung ermöglicht verschiedenen Benutzern es die einfache Verwaltung von Domains und DNS-Einträgen.",
   "dependencies": {
@@ -38,6 +39,7 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
     "jquery": "^3.7.1",
     "nodemon": "^3.1.4",
     "passport": "^0.7.0",
