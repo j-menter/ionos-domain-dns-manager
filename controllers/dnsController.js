@@ -331,7 +331,6 @@ exports.postCreateDnsIONOS_SPF_TXT = async (req, res) => {
 exports.postCreateDnsTXT = async (req, res) => {
   try {
     const { domain } = req.params;
-    // Felder aus dem Formular – beachte: hier heißt das Feld jetzt spfValue!
     const { type, hostname, destination, ttl, disabled = false } = req.body;
     
     // Domains abrufen und passenden Domain-Eintrag finden
@@ -348,13 +347,12 @@ exports.postCreateDnsTXT = async (req, res) => {
       ? domain
       : `${hostname.trim()}.${domain}`;
       
-    // TXT Record (SPF) anlegen – hier wird der SPF-Wert als content übergeben
-    await API_POST_DNS_RECORDS(domainId, domainName, type, spfValue, ttl, null, disabled);
-    console.log(`IONOS_SPF_TXT Record für ${domainName} angelegt.`);
+    await API_POST_DNS_RECORDS(domainId, domainName, type, destination, ttl, null, disabled);
+    console.log(`TXT Record für ${domainName} angelegt.`);
     
     res.redirect(`/domain/${domain}`);
   } catch (error) {
-    console.error("Fehler beim Anlegen des IONOS_SPF_TXT-Records:", error);
+    console.error("Fehler beim Anlegen des TXT-Records:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -840,7 +838,6 @@ exports.postEditDnsSRV = async (req, res) => {
   }
 };
 
-
 // TXT & SPF & IONOS SPF
 exports.postEditDnsTXT = async (req, res) => {
   try {
@@ -864,7 +861,7 @@ exports.postEditDnsTXT = async (req, res) => {
       : `${hostname.trim()}.${domain}`;
       
     // CNAME Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
-    await API_UPDATE_DNS_RECORD(domainId, recordId,destination, ttl, null, disabled);
+    await API_UPDATE_DNS_RECORD(domainId, recordId, destination, ttl, null, disabled);
     console.log(`TXT Record für ${domainName} aktualisiert.`);
     
     res.redirect(`/domain/${domain}`);
