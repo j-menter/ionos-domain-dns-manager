@@ -1,5 +1,5 @@
 {
-  "name": "ionos-domains",
+  "name": "ionos-dns",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
@@ -10,10 +10,22 @@
     "dbdeploy": "npx prisma migrate deploy",
     "prisma": "npx prisma"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "ionos",
+    "dns",
+    "domains",
+    "nodejs",
+    "express",
+    "prisma",
+    "passport",
+    "bootstrap",
+    "open source",
+    "verwaltung",
+    "dns management",
+    "security"
+  ],  "author": "Jonas Menter",
   "license": "ISC",
-  "description": "",
+  "description": "Ein Open Source DNS-Verwaltungstool, das sämtliche IONOS-Operationen repliziert. Mit Login und Drittzugriffsverwaltung ermöglicht verschiedenen Benutzern es die einfache Verwaltung von Domains und DNS-Einträgen.",
   "dependencies": {
     "@prisma/client": "^6.3.1",
     "axios": "^1.7.7",
