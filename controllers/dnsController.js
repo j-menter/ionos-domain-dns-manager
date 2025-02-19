@@ -293,9 +293,51 @@ exports.postCreateDnsSRV = async (req, res) => {
 };
 
 
+exports.postCreateDnsSPF = async (req, res) => {
+  try {
+    console.log("postCreateDnsSPF called");
+    const { domain } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, spfValue, ttl, disabled = false } = req.body;
+    
+    // TTL in eine Zahl umwandeln
+    const ttlNumber = parseInt(ttl, 10);
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
 
+    console.log("Erstelle SPF Record mit folgenden Parametern:", {
+      domainId,
+      domainName,
+      type,
+      spfValue,
+      ttl: ttlNumber,
+      disabled
+    });
+    
+    // DNS Record (TXT, SPF) anlegen
+    await API_POST_DNS_RECORDS(domainId, domainName, type, spfValue, ttlNumber, null, disabled);
+    console.log(`SPF Record für ${domainName} erstellt.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Erstellen des SPF-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
-exports.postCreateDnsIONOS_SPF_TXT = async (req, res) => {
+exports.postCreateDnsIONOS_SPF = async (req, res) => {
   try {
     const { domain } = req.params;
     // Felder aus dem Formular – beachte: hier heißt das Feld jetzt spfValue!
@@ -325,8 +367,6 @@ exports.postCreateDnsIONOS_SPF_TXT = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
-
 
 exports.postCreateDnsTXT = async (req, res) => {
   try {
@@ -525,9 +565,35 @@ exports.getEditDnsSRV = async (req, res) => {
   }
 };
 
+exports.getEditDnsIONOS_SPF = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    // record enthält z.B. Felder wie hostname, destination, ttl, prio, disabled, etc.
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log(  "record", record)
+    res.render("dns/IONOS_SPF_(TXT)", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des IONOS_SPF_(TXT)-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
-
-
+exports.getEditDnsSPF = async (req, res) => {
+  try {
+    const { domain, recordId, zoneId } = req.params;
+    const record = await API_GET_DNS_RECORD(zoneId, recordId);
+    // record enthält z.B. Felder wie hostname, destination, ttl, prio, disabled, etc.
+    record.zoneId = zoneId;
+    record.recordId = recordId;
+    console.log(  "record", record)
+    res.render("dns/SPF_(TXT)", { domain, record, getHostname });
+  } catch (error) {
+    console.error("Fehler beim Laden des SPF_(TXT)-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 exports.getEditDnsTXT = async (req, res) => {
   try {
@@ -838,9 +904,78 @@ exports.postEditDnsSRV = async (req, res) => {
   }
 };
 
-// TXT & SPF & IONOS SPF
+exports.postEditDnsIONOS_SPF = async (req, res) => {
+  try {
+    console.log("called post edit IONOS_SPF")
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // CNAME Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
+    console.log("sent ", domainId, recordId, destination, ttl, null, disabled)
+    await API_UPDATE_DNS_RECORD(domainId, recordId, destination, ttl, null, disabled);
+    console.log(`IONOS_SPF Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des IONOS_SPF-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+exports.postEditDnsSPF = async (req, res) => {
+  try {
+    console.log("called post edit SPF")
+
+    // Hole domain, recordId und zoneId aus den URL-Parametern
+    const { domain, recordId, zoneId } = req.params;
+    // Felder aus dem Formular
+    const { type, hostname, destination, ttl, disabled = false } = req.body;
+    
+    // Domains abrufen und passenden Domain-Eintrag finden
+    const domains = await API_GET_DOMAINS();
+    const domainObj = domains.find(d => d.name === domain);
+    if (!domainObj) {
+      console.error("Domain nicht gefunden:", domain);
+      return res.status(404).send("Domain not found");
+    }
+    const domainId = domainObj.id;
+    
+    // Record-Name: Wenn hostname leer oder "@" ist, dann die Domain, ansonsten "hostname.domain"
+    const domainName = (!hostname || hostname.trim() === "@")
+      ? domain
+      : `${hostname.trim()}.${domain}`;
+      
+    // CNAME Record aktualisieren (hier wird davon ausgegangen, dass es eine API-Methode zum Updaten gibt)
+    await API_UPDATE_DNS_RECORD(domainId, recordId,destination, ttl, null, disabled);
+    console.log(`SPF Record für ${domainName} aktualisiert.`);
+    
+    res.redirect(`/domain/${domain}`);
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren des SPF-Records:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
 exports.postEditDnsTXT = async (req, res) => {
   try {
+    console.log("called post edit TXT")
+
     // Hole domain, recordId und zoneId aus den URL-Parametern
     const { domain, recordId, zoneId } = req.params;
     // Felder aus dem Formular
