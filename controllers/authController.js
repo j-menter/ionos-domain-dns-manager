@@ -1,20 +1,19 @@
 const { API_GET_DOMAINS } = require("../utils/API_GET_DOMAINS");
 const { API_GET_DOMAIN_RECORDS } = require("../utils/API_GET_DOMAIN_RECORDS");
-const { API_POST_DELETE_DNS_RECORD } = require("../utils/API_POST_DELETE_DNS_RECORD");
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.getLogin = (req, res) => {
   res.render("login", { errorMessages: req.flash("error") });
 };
 
-exports.getProfile = async (req, res) => {    
+exports.getProfile = async (req, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
-    include: { domains: true }
+    include: { domains: true },
   });
 
-  res.render('profile', { user });
+  res.render("profile", { user });
 };
 
 exports.getFqdn = async (req, res) => {
@@ -22,7 +21,7 @@ exports.getFqdn = async (req, res) => {
     // Hole den aktuell eingeloggenen User mitsamt seinen Domains
     const userWithDomains = await prisma.user.findUnique({
       where: { id: req.user.id },
-      include: { domains: true }
+      include: { domains: true },
     });
 
     // Wenn der User nicht existiert (sollte aber nicht der Fall sein, wenn er eingeloggt ist)
@@ -40,42 +39,42 @@ exports.getFqdn = async (req, res) => {
 
 exports.getDomainDetails = async (req, res) => {
   const domainName = req.params.domain; // DOMAIN aus url
-  
+
   const fqdnId = await API_GET_DOMAINS();
   const domainEntry = fqdnId.find(domain => domain.name === domainName);
 
-    if (!domainEntry) {
-        console.error("Domain nicht gefunden:", domainName);
-        return res.status(404).send("Domain nicht gefunden");
-    }
+  if (!domainEntry) {
+    console.error("Domain nicht gefunden:", domainName);
+    return res.status(404).send("Domain nicht gefunden");
+  }
 
-    const domainZoneId = domainEntry.id;
-    
-    // Neues Request
-    const dnsRecordsResponse = await API_GET_DOMAIN_RECORDS(domainZoneId);
-    const dnsRecords = Array.isArray(dnsRecordsResponse.records) ? dnsRecordsResponse.records : [];
-    
-    console.log("--------------")
-    console.log("dnRecrods ", dnsRecords)
-    console.log("--------------")
-    
-    // Filtern der relevanten Subdomains
-    const subdomains = [...new Set(
-      dnsRecords
+  const domainZoneId = domainEntry.id;
+
+  // Neues Request
+  const dnsRecordsResponse = await API_GET_DOMAIN_RECORDS(domainZoneId);
+  const dnsRecords = Array.isArray(dnsRecordsResponse.records) ? dnsRecordsResponse.records : [];
+
+  console.log("--------------");
+  console.log("dnRecrods ", dnsRecords);
+  console.log("--------------");
+
+  // Filtern der relevanten Subdomains
+  const subdomains = [...new Set(
+    dnsRecords
       .map(record => record.name)
-      .filter(name => {
+      .filter((name) => {
         const isSubdomain = name !== domainName && name.endsWith(`.${domainName}`);
-        return isSubdomain &&
-        !name.startsWith("_") &&
-        !name.includes("www") &&
-        !name.includes("autodiscover") &&
-        !name.includes("domainkey") &&
-        !name.includes("bimi");
-      })
-    )];
-    
-    console.log("subdomains gefiltert: ", subdomains)
-    console.log("Gefundene domain Zone-ID:", domainZoneId);
-    
-    res.render("subdomains", { dnsRecords, domainName, subdomains, domainZoneId });
+        return isSubdomain
+          && !name.startsWith("_")
+          && !name.includes("www")
+          && !name.includes("autodiscover")
+          && !name.includes("domainkey")
+          && !name.includes("bimi");
+      }),
+  )];
+
+  console.log("subdomains gefiltert: ", subdomains);
+  console.log("Gefundene domain Zone-ID:", domainZoneId);
+
+  res.render("subdomains", { dnsRecords, domainName, subdomains, domainZoneId });
 };
