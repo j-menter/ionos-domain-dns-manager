@@ -16,7 +16,17 @@
       <% } %>     
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/TXT` : 'createDns/TXT' %>" method="POST">
+      <% if (typeof record !== 'undefined' && record.content) { %>
+        <% if (record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all")) { %>
+          <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/IONOS_SPF` : 'createDns/IONOS_SPF' %>" method="POST">
+          <% } else if (record.content.includes("v=spf")) { %>
+            <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/SPF` : 'createDns/SPF' %>" method="POST">
+          <% } else { %>
+            <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/TXT` : 'createDns/TXT' %>" method="POST">
+        <% } %>
+        <% } else { %>
+              <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/TXT` : 'createDns/TXT' %>" method="POST">
+        <% } %>
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -40,7 +50,13 @@
             class="form-control"
             placeholder="@, www ..."
             value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName) : '' %>"
-          >
+            <% if (typeof record !== 'undefined' && record.content) { %>
+              readonly
+            <% } %> 
+            >
+          <% if (typeof record !== 'undefined' && record.content) { %>
+            <small>Der Hostname kann nicht geändert werden.</small>
+          <% } %>
         </div>
 
         <!-- Wert -->
@@ -52,8 +68,14 @@
             name="destination"
             class="form-control"
             value="<%= typeof record !== 'undefined' && record.content ? record.content : '' %>"
-          >
-        </div>
+            <% if (typeof record !== 'undefined' && record.content && record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all") ) { %>
+              readonly
+            <% } %> 
+            >
+            <% if (typeof record !== 'undefined' && record.content && record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all") ) { %>
+              <small>Der Wert kann nicht geändert werden.</small>
+            <% } %> 
+        </div> 
 
         <!-- TTL -->
         <div class="mb-3">
