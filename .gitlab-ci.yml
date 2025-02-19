@@ -1,0 +1,18 @@
+stages:
+  - build
+  - lint
+  - deploy
+
+.node-base:
+  image: node:20
+  tags:
+    - docker
+  interruptible: true
+  before_script:
+    - npm install --include=dev
+
+eslint:
+  extends: .node-base
+  stage: lint
+  script:
+    - npx eslint .

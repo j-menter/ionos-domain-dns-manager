@@ -1,5 +1,5 @@
-require('dotenv').config();
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
 const path = require("path");
 const flash = require("connect-flash");
 const session = require("express-session");
@@ -7,10 +7,10 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 
 // Session und Passport initialisieren
-app.use(session({ 
-    secret: "idazfrzVOsUsFstgEVd282)dF(?", 
-    resave: false, 
-    saveUninitialized: false 
+app.use(session({
+  secret: "idazfrzVOsUsFstgEVd282)dF(?",
+  resave: false,
+  saveUninitialized: false,
 }));
 
 app.use(flash());
@@ -21,11 +21,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use((req, res, next) => {
-    res.locals.user = req.user || null;
-    next();
+  res.locals.user = req.user || null;
+  next();
 });
 
-let ejs = require('ejs');
 app.set("view engine", "ejs");
 
 app.use(express.json());
@@ -41,9 +40,7 @@ const adminRoutes = require("./routes/adminRoutes");
 app.use("/", authRoutes); // alle nutzer
 app.use("/admin", adminRoutes); // nur admins
 
-
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`${new Date().toLocaleTimeString()} Server läuft auf Port http://localhost:${PORT}`);
+  console.log(`${new Date().toLocaleTimeString()} Server läuft auf Port http://localhost:${PORT}`);
 });
