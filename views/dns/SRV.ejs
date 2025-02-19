@@ -3,10 +3,10 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>SRV‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
+      <h4>SRV-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/SRV" method="POST">
+      <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/SRV` : 'createDns/SRV' %>" method="POST">
         <!-- Service -->
         <div class="mb-3">
           <label for="service" class="form-label">Service</label>
@@ -24,9 +24,9 @@
         <div class="mb-3">
           <label for="protocol" class="form-label">Protokoll</label>
           <select id="protocol" name="protocol" class="form-select">
-            <option value="TCP" <%= typeof record !== 'undefined' && record.protocol === 'TCP' ? 'selected' : '' %>>TCP</option>
-            <option value="UDP" <%= typeof record !== 'undefined' && record.protocol === 'UDP' ? 'selected' : '' %>>UDP</option>
-            <option value="TLS" <%= typeof record !== 'undefined' && record.protocol === 'TLS' ? 'selected' : '' %>>TLS</option>
+            <option value="tcp" <%= typeof record !== 'undefined' && record.protocol === 'TCP' ? 'selected' : '' %>>TCP</option>
+            <option value="udp" <%= typeof record !== 'undefined' && record.protocol === 'UDP' ? 'selected' : '' %>>UDP</option>
+            <option value="tls" <%= typeof record !== 'undefined' && record.protocol === 'TLS' ? 'selected' : '' %>>TLS</option>
           </select>
         </div>
 
@@ -39,20 +39,20 @@
             name="hostname"
             class="form-control"
             placeholder="@, www ..."
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
+            value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName)  : '' %>"
           >
         </div>
 
-        <!-- Zeigt auf (Target) -->
+        <!-- Zeigt auf (Destination) -->
         <div class="mb-3">
           <label for="target" class="form-label">Zeigt auf</label>
           <input
             type="text"
             id="target"
-            name="target"
+            name="destination"
             class="form-control"
             placeholder="ziel-domain.de"
-            value="<%= typeof record !== 'undefined' && record.target ? record.target : '' %>"
+            value="<%= typeof record !== 'undefined' && record.content ? record.content : '' %>"
           >
         </div>
 
@@ -66,7 +66,7 @@
             class="form-control"
             min="0"
             max="65535"
-            value="<%= typeof record !== 'undefined' && record.priority ? record.priority : '' %>"
+            value="<%= typeof record !== 'undefined' && record.priority ? record.priority : '10' %>"
           >
         </div>
 
@@ -80,7 +80,7 @@
             class="form-control"
             min="0"
             max="65535"
-            value="<%= typeof record !== 'undefined' && record.weight ? record.weight : '' %>"
+            value="<%= typeof record !== 'undefined' && record.weight ? record.weight : '0' %>"
           >
         </div>
 
@@ -94,6 +94,7 @@
             class="form-control"
             min="0"
             max="65535"
+            placeholder="1234"
             value="<%= typeof record !== 'undefined' && record.port ? record.port : '' %>"
           >
         </div>
@@ -102,7 +103,7 @@
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (!record ? 'selected' : '') %>>1 Minute</option>
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (typeof record === 'undefined' ? 'selected' : '') %>>1 Minute</option>
             <option value="300" <%= typeof record !== 'undefined' && record.ttl === '300' ? 'selected' : '' %>>5 Minuten</option>
             <option value="1800" <%= typeof record !== 'undefined' && record.ttl === '1800' ? 'selected' : '' %>>30 Minuten</option>
             <option value="3600" <%= typeof record !== 'undefined' && record.ttl === '3600' ? 'selected' : '' %>>1 Stunde</option>
@@ -120,7 +121,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-secondary" onclick="window.history.back();">Abbrechen</button>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>

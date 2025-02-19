@@ -3,10 +3,10 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>CAA‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
+      <h4>CAA-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/CAA" method="POST">
+      <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/CAA` : 'createDns/CAA' %>" method="POST">
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -22,9 +22,13 @@
             name="hostname"
             class="form-control"
             placeholder="@, subdomain ..."
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
-          >
-        </div>
+            value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName) : '' %>"
+            <%= typeof record !== 'undefined' ? "readonly" : '' %>
+            >
+            <% if (typeof record !== 'undefined') { %>
+              <small>Der Hostname kann nicht geändert werden.</small>
+            <% } %>
+                    </div>
 
         <!-- Wert -->
         <div class="mb-3">
@@ -43,7 +47,7 @@
         <div class="mb-3">
           <label for="flag" class="form-label">Flag</label>
           <select id="flag" name="flag" class="form-select">
-            <option value="0" <%= typeof record !== 'undefined' && record.flag == '0' ? 'selected' : (!record ? 'selected' : '') %>>0 (Nicht kritisch)</option>
+            <option value="0" <%= typeof record !== 'undefined' && record.flag == '0' ? 'selected' : (typeof record !== 'undefined' && !record ? 'selected' : '') %>>0 (Nicht kritisch)</option>
             <option value="1" <%= typeof record !== 'undefined' && record.flag == '1' ? 'selected' : '' %>>128 (Kritisch)</option>
           </select>
         </div>
@@ -90,7 +94,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>

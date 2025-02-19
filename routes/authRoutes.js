@@ -23,43 +23,60 @@ router.get('/logout', (req, res, next) => {
 });
 
 // Hier wird die Middleware verwendet
-router.use(isAuthenticated);
+process.env.NODE_ENV === "development" ? "" : router.use(isAuthenticated);
 
 router.get('/profile', authController.getProfile);
 
 router.get("/fqdn", authController.getFqdn)
 
-router.use("/domain/:domain", checkDomainOwnership); // checkt berechtigungen für domain
+process.env.NODE_ENV === "development" ? "" : router.use("/domain/:domain", checkDomainOwnership); // checkt berechtigungen für domain
 
 router.get("/domain/:domain", authController.getDomainDetails)
-router.get("/domain/:domain/createDns", authController.getDnsTable)
+router.get("/domain/:domain/createDns", dnsController.getDnsTable)
 
-router.post("/domain/:domain/delete/:recordId", authController.postDeleteDnsRecord)
+//dns record delete
+router.post("/domain/:domain/delete/:recordId", dnsController.postDeleteDnsRecord)
 
-//dns record erstellung
-router.post("/domain/:domain/createDns/:type", dnsController.postCreateDns)
+//dns record get create views
+router.get("/domain/:domain/createDns/:type", dnsController.getCreateDns)
 
-//dns record ersellung views
-router.get("/domain/:domain/createDns/A", dnsController.getCreateDnsA)
-router.get("/domain/:domain/createDns/AAAA", dnsController.getCreateDnsAAAA)
+//dns record post create
+router.post("/domain/:domain/createDns/:type",
+  //middleware zur routenerzeugung
+  (req, res, next) => {
+  const type = req.params.type;
+  const handler = dnsController[`postCreateDns${type}`];
+  if (handler) {
+    return handler(req, res, next);
+  } else {
+    return next(new Error("Ungültiger Record-Typ"));
+  }
+});
 
-router.get("/domain/:domain/createDns/TXT", dnsController.getCreateDnsTXT)
-router.get("/domain/:domain/editDns/:zoneId/:recordId", dnsController.getEditDns)
+//dns record get edit views
+router.get("/domain/:domain/editDns/:type/:zoneId/:recordId", 
+  //middleware zur routenerzeugung
+  (req, res, next) => {
+  const type = req.params.type;
+  const handler = dnsController[`getEditDns${type}`];
+  if (handler) {
+    return handler(req, res, next);
+  } else {
+    return next(new Error("Ungültiger Record-Typ"));
+  }
+});
 
-router.get("/domain/:domain/createDns/CNAME", dnsController.getCreateDnsCNAME)
-
-router.get("/domain/:domain/createDns/CAA", dnsController.getCreateDnsCAA)
-
-router.get("/domain/:domain/createDns/NS", dnsController.getCreateDnsNS)
-router.get("/domain/:domain/createDns/SPF", dnsController.getCreateDnsSPF)
-router.get("/domain/:domain/createDns/IONOS-SPF", dnsController.getCreateDnsIonosSPF)
-router.get("/domain/:domain/createDns/MX", dnsController.getCreateDnsMX)
-
-router.post("/domain/:domain/editDns/:zoneId/:recordId", dnsController.postEditDns)
-
-router.get("/domain/:domain/createDns/SRV", dnsController.getCreateDnsSRV)
-
-// router.get("/domain/:domain/createDns/TLSA", dnsController.getCreateDnsTLSA)
-
+//dns record post edit
+router.post("/domain/:domain/editDns/:zoneId/:recordId/:type", 
+  //middleware zur routenerzeugung
+  (req, res, next) => {
+  const type = req.params.type;
+  const handler = dnsController[`postEditDns${type}`];
+  if (handler) {
+    return handler(req, res, next);
+  } else {
+    return next(new Error("Ungültiger Record-Typ"));
+  }
+});
 
 module.exports = router;

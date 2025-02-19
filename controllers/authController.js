@@ -78,32 +78,4 @@ exports.getDomainDetails = async (req, res) => {
     console.log("Gefundene domain Zone-ID:", domainZoneId);
     
     res.render("subdomains", { dnsRecords, domainName, subdomains, domainZoneId });
-  };
-  
-
-exports.getDomainDNS = (req, res) => {
-
-
-  // abfrage aller dns einträge der angefragten domain
-
-  res.render("dns");
-};
-
-exports.getDnsTable = async (req, res) => {
-
-  res.render("dnsTable");
-};
-
-exports.postDeleteDnsRecord = async (req, res) => {
-  console.log("löschvorgang");
-  const domain = req.params.domain;
-  const recordId = req.params.recordId;
-  const domainZoneId = req.body.domainZoneId;
-
-  console.log("lösche dns eintrag: ", domain, recordId, domainZoneId)
-
-  await API_POST_DELETE_DNS_RECORD(domainZoneId, recordId)
-
-
-  res.redirect(`/domain/${domain}`);
 };

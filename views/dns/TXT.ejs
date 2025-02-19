@@ -3,10 +3,30 @@
 <div class="container py-5">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
-      <h4>TXT‑Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
+      <% if (typeof record !== 'undefined' && record.content) { %>
+        <% if (record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all")) { %>
+          <h4>IONOS SPF-Record bearbeiten</h4>
+        <% } else if (record.content.includes("v=spf")) { %>
+          <h4>SPF-Record bearbeiten</h4>
+        <% } else { %>
+          <h4>TXT-Record bearbeiten</h4>
+        <% } %>
+      <% } else { %>
+        <h4>TXT-Record hinzufügen</h4>
+      <% } %>     
     </div>
     <div class="card-body">
-      <form action="/domain/<%= domain %>/createDns/TXT" method="POST">
+      <% if (typeof record !== 'undefined' && record.content) { %>
+        <% if (record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all")) { %>
+          <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/IONOS_SPF` : 'createDns/IONOS_SPF' %>" method="POST">
+          <% } else if (record.content.includes("v=spf")) { %>
+            <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/SPF` : 'createDns/SPF' %>" method="POST">
+          <% } else { %>
+            <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/TXT` : 'createDns/TXT' %>" method="POST">
+        <% } %>
+        <% } else { %>
+              <form action="/domain/<%= domain %>/<%= typeof record !== 'undefined' ? `editDns/${record.zoneId}/${record.recordId}/TXT` : 'createDns/TXT' %>" method="POST">
+        <% } %>
         <!-- Typ -->
         <div class="mb-3">
           <label for="recordType" class="form-label">Typ</label>
@@ -29,8 +49,14 @@
             name="hostname"
             class="form-control"
             placeholder="@, www ..."
-            value="<%= typeof record !== 'undefined' && record.hostname ? record.hostname : '' %>"
-          >
+            value="<%= typeof record !== 'undefined' && record.name ? getHostname(record.name, record.rootName) : '' %>"
+            <% if (typeof record !== 'undefined' && record.content) { %>
+              readonly
+            <% } %> 
+            >
+          <% if (typeof record !== 'undefined' && record.content) { %>
+            <small>Der Hostname kann nicht geändert werden.</small>
+          <% } %>
         </div>
 
         <!-- Wert -->
@@ -41,15 +67,21 @@
             id="destination"
             name="destination"
             class="form-control"
-            value="<%= typeof record !== 'undefined' && record.destination ? record.destination : '' %>"
-          >
-        </div>
+            value="<%= typeof record !== 'undefined' && record.content ? record.content : '' %>"
+            <% if (typeof record !== 'undefined' && record.content && record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all") ) { %>
+              readonly
+            <% } %> 
+            >
+            <% if (typeof record !== 'undefined' && record.content && record.content.includes("v=spf1 include:_spf-eu.ionos.com ~all") ) { %>
+              <small>Der Wert kann nicht geändert werden.</small>
+            <% } %> 
+        </div> 
 
         <!-- TTL -->
         <div class="mb-3">
           <label for="ttl" class="form-label">TTL</label>
           <select id="ttl" name="ttl" class="form-select">
-            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (!record ? 'selected' : '') %>>1 Minute</option>
+            <option value="60" <%= typeof record !== 'undefined' && record.ttl === '60' ? 'selected' : (typeof record === 'undefined' ? 'selected' : '') %>>1 Minute</option>
             <option value="300" <%= typeof record !== 'undefined' && record.ttl === '300' ? 'selected' : '' %>>5 Minuten</option>
             <option value="1800" <%= typeof record !== 'undefined' && record.ttl === '1800' ? 'selected' : '' %>>30 Minuten</option>
             <option value="3600" <%= typeof record !== 'undefined' && record.ttl === '3600' ? 'selected' : '' %>>1 Stunde</option>
@@ -68,7 +100,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="/domain/<%= domain %>/createDns" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
