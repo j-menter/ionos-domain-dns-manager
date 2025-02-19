@@ -1,21 +1,21 @@
 // seedDomains.js
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { API_GET_DOMAINS } = require('./API_GET_DOMAINS');
+const { API_GET_DOMAINS } = require("./API_GET_DOMAINS");
 
 async function seedDomains() {
-  const apiDomains = await API_GET_DOMAINS(); 
+  const apiDomains = await API_GET_DOMAINS();
 
   try {
     // Wir gehen davon aus, dass es bereits einen Admin gibt,
     // der als Besitzer der Domain-Einträge verwendet wird.
     // Hier suchen wir beispielsweise nach einem User mit der E-Mail 'admin@test.de'
     const adminUser = await prisma.user.findUnique({
-      where: { email: 'admin@test.de' }
+      where: { email: "admin@test.de" },
     });
 
     if (!adminUser) {
-      console.error('Admin-User nicht gefunden. Bitte lege zuerst einen Admin-User an.');
+      console.error("Admin-User nicht gefunden. Bitte lege zuerst einen Admin-User an.");
       return;
     }
 
@@ -37,8 +37,8 @@ async function seedDomains() {
         await prisma.domain.create({
           data: {
             name: domainData.name,
-            users: { connect: { id: adminUser.id } }
-          }
+            users: { connect: { id: adminUser.id } },
+          },
         });
         console.log(`Domain ${domainData.name} wurde hinzugefügt.`);
       } else {
@@ -46,9 +46,9 @@ async function seedDomains() {
       }
     }
 
-    console.log('Alle Domains wurden erfolgreich synchronisiert.');
+    console.log("Alle Domains wurden erfolgreich synchronisiert.");
   } catch (error) {
-    console.error('Fehler beim Befüllen der Domains:', error);
+    console.error("Fehler beim Befüllen der Domains:", error);
   } finally {
     await prisma.$disconnect();
   }

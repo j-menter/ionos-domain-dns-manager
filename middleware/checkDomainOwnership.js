@@ -11,8 +11,8 @@ module.exports = function checkDomainOwnership(req, res, next) {
     return res.status(403).send("Kein Benutzer oder Domains vorhanden.");
   }
 
-  const userDomains = req.user.domains.map(d => 
-    (typeof d.name === 'string' ? d.name.trim().toLowerCase() : "")
+  const userDomains = req.user.domains.map(d =>
+    (typeof d.name === "string" ? d.name.trim().toLowerCase() : ""),
   );
   console.log("User domains:", userDomains);
 
@@ -20,5 +20,5 @@ module.exports = function checkDomainOwnership(req, res, next) {
     return next();
   }
 
-  return res.status(403).render('domainError', { domain: requestedDomain });
+  return res.status(403).render("domainError", { domain: requestedDomain });
 };
