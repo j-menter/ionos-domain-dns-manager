@@ -48,24 +48,21 @@ Der **IONOS Domain DNS Manager** ist ein Open-Source-Tool zur Verwaltung von DNS
 
     npm install
 
-    Bennene eine .env.template zu .env um und gibt korrekte variablen an:
-
-        PORT=3000
-        NODE_ENV=development
-        SESSION_SECRET=dein_session_secret
-        IONOS_API_KEY=dein_ionos_api_key
-        IONOS_API_SECRET=dein_ionos_api_secret
+    Bennene die .env.template zu .env um und gibt korrekte variablen und db url an.
     
     Passe die Werte entsprechend deiner Umgebung an.
 
     Datenbankeinrichtung (mit Prisma):
 
+    dbdeploy (erstellen der db tabellen)
+
     ```bash
-    npx prisma migrate dev
-    npx prisma generate
+    npm run dbdeploy
     ```
     
 2. **Seeding für erste benutzer und Domains:**
+    create-initial-users (inkl. gestezter admin in env)
+    read-domains (domains einmalig einlesen, bei kauf / verkauf neu ausführen)
 
         npm run create-initial-users
         npm run read-domains
@@ -81,16 +78,15 @@ Der **IONOS Domain DNS Manager** ist ein Open-Source-Tool zur Verwaltung von DNS
     npm start
     ```
 
-
         Die Anwendung ist nun unter http://localhost:3000 erreichbar.
 
 3. **Nutzung**
 
-    **Login:** Melde dich mit deinem Benutzerkonto an, um Zugriff auf die DNS-Verwaltung zu erhalten.
+    **Login:** Melde dich mit deinem Benutzerkonto an.
     
     **DNS-Verwaltung:** Wähle im Dashboard deine Domain aus und verwalte die DNS-Einträge über die intuitive Benutzeroberfläche.
     
-    **Drittzugriff:** Verwalte Nutzerkonten und konfiguriere ihr "Erlaubte Domains" im Admin Panel, um anderen (Freunden, Familie, Kollegen) einen begrenzten Zugriff zu ermöglichen. (Nicht auf alle Domains in deinem IONOS-Konto)
+    **Drittzugriff:** konfiguriere anderen Nutzern "Erlaubte Domains" im Admin Panel, um anderen (Freunden, Familie, Kollegen) einen begrenzten Zugriff zu ermöglichen. (Nicht auf alle Domains in deinem IONOS-Konto)
     
 **Contributing**
 
