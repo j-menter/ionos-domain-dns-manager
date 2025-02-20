@@ -40,8 +40,6 @@ const adminRoutes = require("./routes/adminRoutes");
 app.use("/", authRoutes); // alle nutzer
 app.use("/admin", adminRoutes); // nur admins
 
-
-// eslint-disable-next-line no-unused-vars
 app.use((req, res, next) => {
   const err = new Error("Seite nicht gefunden");
   err.status = 404;

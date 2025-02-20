@@ -6,8 +6,7 @@ export default [
   {
     ignores: [
       "**/*.min.js",
-      "public/cropper/cropper.js",
-      "public/cropper/fa-v5.15.4-all.css",
+      "*.md",
     ],
   },
   {
