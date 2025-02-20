@@ -8,7 +8,8 @@
     "create-initial-users": "node utils/seedUsers.js",
     "read-domains": "node utils/seedDomains.js",
     "dbdeploy": "npx prisma migrate deploy",
-    "prisma": "npx prisma"
+    "prisma": "npx prisma",
+    "push-github": "git push --mirror github"
   },
   "keywords": [
     "ionos",
