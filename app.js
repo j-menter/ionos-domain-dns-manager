@@ -40,6 +40,33 @@ const adminRoutes = require("./routes/adminRoutes");
 app.use("/", authRoutes); // alle nutzer
 app.use("/admin", adminRoutes); // nur admins
 
+
+// eslint-disable-next-line no-unused-vars
+app.use((req, res, next) => {
+  const err = new Error("Seite nicht gefunden");
+  err.status = 404;
+  next(err);
+});
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  const status = err.status || 500; // Fallback auf 500
+  const message = err.status === 404 ? "Seite nicht gefunden" : (err.message || "Ein unerwarteter Fehler ist aufgetreten");
+
+  console.error(err.stack);
+
+  // Sicherstellen, dass res.render verfügbar ist
+  if (typeof res.render !== "function") {
+    console.error("Response-Objekt hat keine render-Methode");
+    return res.status(status).send(message); // Fallback zu einer einfachen Textantwort
+  }
+
+  res.status(status).render("error", {
+    status: status,
+    message: message,
+    stack: process.env.NODE_ENV === "development" ? err.stack : "", // Stack nur im Entwicklungsmodus anzeigen
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`${new Date().toLocaleTimeString()} Server läuft auf Port http://localhost:${PORT}`);

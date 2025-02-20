@@ -16,7 +16,7 @@ exports.getProfile = async (req, res) => {
   res.render("profile", { user });
 };
 
-exports.getFqdn = async (req, res) => {
+exports.getFqdn = async (req, res, next) => {
   try {
     // Hole den aktuell eingeloggenen User mitsamt seinen Domains
     const userWithDomains = await prisma.user.findUnique({
@@ -26,14 +26,14 @@ exports.getFqdn = async (req, res) => {
 
     // Wenn der User nicht existiert (sollte aber nicht der Fall sein, wenn er eingeloggt ist)
     if (!userWithDomains) {
-      return res.status(404).send("Benutzer nicht gefunden");
+      return next(Object.assign(new Error("Benutzer nicht gefunden."), { status: 500 }));
     }
 
     // Render die View "fqdn" und übergebe nur die Domains des Users
     res.render("fqdn", { domains: userWithDomains.domains });
   } catch (error) {
     console.error("Fehler beim Abrufen der Domains:", error);
-    res.status(500).send("Fehler beim Laden der Domains");
+    return next(Object.assign(new Error("Fehler beim Laden der Domains. Angemeldet?"), { status: 500 }));
   }
 };
 

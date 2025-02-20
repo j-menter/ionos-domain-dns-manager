@@ -1,0 +1,14 @@
+<%- include('partials/header', { title: "Fehler"}) -%>
+  <div class="container text-center mt-5">
+    <div class="alert alert-danger" role="alert">
+      <h1 class="display-4">Fehler <%= status %></h1>
+      <p class="lead"><%= message %></p>
+      <% if (stack) { %>
+        <hr>
+        <pre><%= stack %></pre>
+      <% } %>
+    </div>
+    <div class="container mt-5 mb-5">
+      <a href="/fqdn" class="btn btn-primary">Startseite</a>
+    </div>  </div>
+<%- include('partials/footer') -%>
