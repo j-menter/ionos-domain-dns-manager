@@ -59,6 +59,7 @@ app.use((err, req, res, next) => {
   }
 
   res.status(status).render("error", {
+    user: res.locals.user,
     status: status,
     message: message,
     stack: process.env.NODE_ENV === "development" ? err.stack : "", // Stack nur im Entwicklungsmodus anzeigen
