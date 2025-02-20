@@ -1,10 +1,10 @@
-/* eslint-disable no-undef -- used to load links of dns table*/
+/* eslint-disable no-undef -- used to load links of dns table */
 document.addEventListener("DOMContentLoaded", function () {
   const pathParts = window.location.pathname.split("/");
   const domain = pathParts[2];
 
   // Klickbare Zeilen: Alle <tr> mit data-record-type
-  document.querySelectorAll("tr.clickable-row").forEach(row => {
+  document.querySelectorAll("tr.clickable-row").forEach((row) => {
     row.addEventListener("click", function () {
       window.location.href = `/domain/${domain}/createDns/${this.getAttribute("data-record-type")}`;
     });

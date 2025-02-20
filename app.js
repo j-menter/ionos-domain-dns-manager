@@ -13,7 +13,7 @@ app.use(
         "script-src": ["'self'", "cdn.jsdelivr.net"],
       },
     },
-  })
+  }),
 );
 app.use(express.urlencoded({ extended: true }));
 
