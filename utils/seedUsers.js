@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 
 async function main() {
   // Beispielpasswörter
-  const adminPassword = "1234";
+  const adminPassword = process.env.ADMIN_PW || "1234";
   const userPassword = "1234";
 
   // Passwörter hashen
@@ -15,8 +15,8 @@ async function main() {
   // Admin erstellen
   const admin = await prisma.user.create({
     data: {
-      benutzername: "admin",
-      email: "admin@test.de",
+      benutzername: process.env.ADMIN_USER || "admin",
+      email: process.env.ADMIN_EMAIL || "admin@test.de",
       passwordHash: adminPasswordHash,
       isAdmin: true,
     },
