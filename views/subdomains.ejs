@@ -1,5 +1,5 @@
 <%- include('partials/header') -%>
-<div class="container mt-4">
+<div class="container mt-4" data-domain="<%= domainName %>">
   <h1 class="text-center">Detailansicht <%= domainName %></h1>
   <a href="/" class="btn btn-primary btn-sm">Zurück</a>
 
@@ -21,7 +21,6 @@
       </a>
       <table id="dnsTable" 
              class="table table-striped"
-             data-toggle="table"
              data-search="true"
              data-pagination="true"
              data-filter-control="true">
@@ -108,90 +107,6 @@
     </div>
   </div>
 </div>
+<script src="/js/subdomains.js"></script>
+<%- include('partials/footer') -%>
 
-<script>
-  // Die DNS-Daten werden wie gehabt bereitgestellt
-  const dnsRecords = <%- JSON.stringify(dnsRecords || []) %>;
-  const subdomains = <%- JSON.stringify(subdomains || []) %>;
-  const domainName = "<%= domainName %>";
-  const domainZoneId = "<%= domainZoneId %>";
-  
-  console.log("DNS Records im Frontend geladen:", dnsRecords);
-  console.log("Subdomains im Frontend geladen:", subdomains);
-
-  /**
-   * Änderung: Angepasste Formatter-Funktion, die einen Button für das Löschen bereitstellt.
-   */
-  function actionFormatter(value, row, index) {
-    return `
-      <button type="button" 
-              class="btn btn-danger btn-sm mb-2" 
-              data-bs-toggle="modal" 
-              data-bs-target="#deleteModal"
-              data-id="${row.id}"
-              data-name="${row.name}"
-              data-type="${row.type}"
-              data-content="${row.content}"
-              data-changedate="${new Date(row.changeDate).toLocaleString()}"
-              data-ttl="${row.ttl}"
-              data-disabled="${row.disabled ? 'Ja' : 'Nein'}"
-              >
-        Löschen
-      </button>
-      <a href="/domain/${domainName}/editDns/${row.type}/${domainZoneId}/${row.id}" class="btn btn-warning btn-sm mb-2">
-        Bearbeiten
-      </a>
-    `;
-  }
-
-  document.addEventListener("DOMContentLoaded", function() {
-    const subdomainFilter = document.getElementById("subdomainFilter");
-    const dnsTable = $('#dnsTable');
-
-    if (!dnsTable.data('bootstrap.table')) {
-      console.log("Versuche, Bootstrap Table zu initialisieren...");
-      dnsTable.bootstrapTable({
-        data: dnsRecords,
-        filterControl: true
-      });
-      console.log("Bootstrap Table erfolgreich initialisiert.");
-    }
-
-    if (subdomainFilter) {
-      subdomainFilter.addEventListener("change", function() {
-        const selectedSubdomain = this.value ? this.value.toLowerCase() : "";
-        console.log("Ausgewählte Subdomain:", selectedSubdomain);
-
-        let filteredRecords = dnsRecords;
-        if (selectedSubdomain !== "") {
-          filteredRecords = dnsRecords.filter(record => record.name.toLowerCase().includes(selectedSubdomain));
-        }
-        dnsTable.bootstrapTable('load', filteredRecords);
-      });
-    }
-
-    // befüllen des Modals mid daten
-    var deleteModal = document.getElementById('deleteModal');
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-      var button = event.relatedTarget;
-      var id = button.getAttribute('data-id');
-      var name = button.getAttribute('data-name');
-      var type = button.getAttribute('data-type');
-      var content = button.getAttribute('data-content');
-      var changeDate = button.getAttribute('data-changedate');
-      var ttl = button.getAttribute('data-ttl');
-      var disabled = button.getAttribute('data-disabled');
-
-      document.getElementById('modalRecordName').textContent = name;
-      document.getElementById('modalRecordType').textContent = type;
-      document.getElementById('modalRecordContent').textContent = content;
-      document.getElementById('modalRecordChangeDate').textContent = changeDate;
-      document.getElementById('modalRecordTTL').textContent = ttl;
-      document.getElementById('modalRecordDisabled').textContent = disabled;
-
-      document.getElementById('deleteForm').action = `/domain/${domainName}/delete/${id}`;
-    });
-  });
-</script>
-</body>
-</html>
