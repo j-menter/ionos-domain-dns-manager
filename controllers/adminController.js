@@ -58,7 +58,7 @@ exports.postCreateUser = async (req, res) => {
         },
       },
     });
-    res.redirect("/admin/users");
+    res.redirect("/admin");
   } catch (error) {
     console.error("Fehler beim Erstellen des Nutzers:", error);
     const domains = await prisma.domain.findMany();
