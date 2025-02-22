@@ -78,3 +78,42 @@ exports.getDomainDetails = async (req, res) => {
 
   res.render("subdomains", { dnsRecords, domainName, subdomains, domainZoneId });
 };
+
+exports.api_getDNSRecords = async (req, res) => {
+  const domainName = req.params.domain; // DOMAIN aus url
+
+  const fqdnId = await API_GET_DOMAINS();
+  const domainEntry = fqdnId.find(domain => domain.name === domainName);
+
+  if (!domainEntry) {
+    console.error("Domain nicht gefunden:", domainName);
+    return res.status(404).send("Domain nicht gefunden");
+  }
+
+  const domainZoneId = domainEntry.id;
+
+  // Neues Request
+  const dnsRecordsResponse = await API_GET_DOMAIN_RECORDS(domainZoneId);
+  const dnsRecords = Array.isArray(dnsRecordsResponse.records) ? dnsRecordsResponse.records : [];
+
+  console.log("--------------");
+  console.log("dnRecrods ", dnsRecords);
+  console.log("--------------");
+
+  // Filtern der relevanten Subdomains
+  const subdomains = [...new Set(
+    dnsRecords
+      .map(record => record.name)
+      .filter((name) => {
+        const isSubdomain = name !== domainName && name.endsWith(`.${domainName}`);
+        return isSubdomain
+          && !name.startsWith("_")
+          && !name.includes("www")
+          && !name.includes("autodiscover")
+          && !name.includes("domainkey")
+          && !name.includes("bimi");
+      }),
+  )];
+
+  res.json({ dnsRecords, subdomains, domainZoneId });
+};

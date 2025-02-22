@@ -1,6 +1,6 @@
 <%- include('../partials/header') -%>
 
-<div class="container py-5">
+<div class="container py-5" data-domain="<%= domain %>">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
       <h4>IONOS SPF-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
@@ -74,7 +74,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
@@ -84,26 +84,6 @@
   </div>
 </div>
 
-<script>
-  const hostnameInput = document.getElementById('hostname');
-  const ttlSelect = document.getElementById('ttl');
-  const spfValueInput = document.getElementById('spfValue');
-  const previewRecord = document.getElementById('previewRecord');
-
-  function updatePreview() {
-    const domain = "<%= domain %>";
-    const hostname = hostnameInput.value.trim();
-    const spfValue = spfValueInput.value.trim() || 'v=spf1';
-    const ttl = ttlSelect.value;
-    const fqdn = hostname ? `${hostname}.${domain}` : domain;
-    previewRecord.textContent = `${fqdn} ${ttl} IN TXT "${spfValue}"`;
-  }
-
-  hostnameInput.addEventListener('input', updatePreview);
-  ttlSelect.addEventListener('change', updatePreview);
-  spfValueInput.addEventListener('input', updatePreview);
-
-  updatePreview();
-</script>
-
+<script src="/js/IONOS_SPF-record.js"></script>
+<script src="/js/history-back.js"></script>
 <%- include('../partials/footer') -%>

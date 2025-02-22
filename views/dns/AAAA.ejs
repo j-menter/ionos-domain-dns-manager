@@ -1,6 +1,6 @@
 <%- include('../partials/header') -%>
 
-<div class="container py-5">
+<div class="container py-5" data-domain="<%= domain %>">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
       <h4>AAAA-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
@@ -84,7 +84,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
@@ -94,48 +94,7 @@
   </div>
 </div>
 
-<script>
-  const includeWwwCheckbox = document.getElementById('include_www');
-  const wwwRecord = document.getElementById('wwwRecord');
-  const hostnameInput = document.getElementById('hostname');
-  const ttlSelect = document.getElementById('ttl');
-  const destinationInput = document.getElementById('destination');
-  const previewRecord = document.getElementById('previewRecord');
-
-  // Funktion zur Aktualisierung der Vorschau
-  function updatePreview() {
-    const domain = "<%= domain %>";
-    const hostname = hostnameInput.value.trim();
-    const destination = destinationInput.value.trim() || "IPv6-Adresse";
-    const ttl = ttlSelect.value;
-
-    if (hostname) {
-      previewRecord.textContent = `${hostname}.${domain} ${ttl} IN AAAA ${destination}`;
-      wwwRecord.textContent = `www.${hostname}.${domain} ${ttl} IN AAAA ${destination}`;
-    } else {
-      previewRecord.textContent = `${domain} ${ttl} IN AAAA ${destination}`;
-      wwwRecord.textContent = `www.${domain} ${ttl} IN AAAA ${destination}`;
-    }
-  }
-
-  // Checkbox initialisieren
-  includeWwwCheckbox.value = includeWwwCheckbox.checked ? "true" : "false";
-  includeWwwCheckbox.addEventListener('change', function() {
-    this.value = this.checked ? "true" : "false";
-    if (this.checked) {
-      wwwRecord.classList.remove('text-decoration-line-through');
-    } else {
-      wwwRecord.classList.add('text-decoration-line-through');
-    }
-  });
-
-  // Event Listener für die Eingabefelder
-  hostnameInput.addEventListener('input', updatePreview);
-  ttlSelect.addEventListener('change', updatePreview);
-  destinationInput.addEventListener('input', updatePreview);
-
-  // Initiale Vorschau setzen
-  updatePreview();
-</script>
+<script src="/js/AAAA-record.js"></script>
+<script src="/js/history-back.js"></script>
 
 <%- include('../partials/footer') -%>

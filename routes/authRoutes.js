@@ -81,4 +81,10 @@ router.post("/domain/:domain/editDns/:zoneId/:recordId/:type",
     }
   });
 
+if (process.env.NODE_ENV === "development") {
+  router.get("/api/v1/domain/:domain/records", authController.api_getDNSRecords);
+} else {
+  router.get("/api/v1/domain/:domain/records", checkDomainOwnership, authController.api_getDNSRecords);
+}
+
 module.exports = router;

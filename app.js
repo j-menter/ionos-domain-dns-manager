@@ -2,8 +2,19 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const flash = require("connect-flash");
+const helmet = require("helmet");
 const session = require("express-session");
 const app = express();
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "script-src": ["'self'", "cdn.jsdelivr.net"],
+      },
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Session und Passport initialisieren

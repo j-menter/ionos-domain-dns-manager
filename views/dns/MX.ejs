@@ -1,6 +1,6 @@
 <%- include('../partials/header') -%>
 
-<div class="container py-5">
+<div class="container py-5" data-domain="<%= domain %>">
   <div class="card mx-auto" style="max-width: 600px;">
     <div class="card-header text-center">
       <h4>MX-Record <%= typeof record !== 'undefined' ? 'bearbeiten' : 'hinzufügen' %></h4>
@@ -60,7 +60,7 @@
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between">
-          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary" onclick="window.history.back(); return false;">Abbrechen</a>
+          <a href="<%= typeof record !== 'undefined' ? '/domain/' + domain : '/domain/' + domain + '/createDns' %>" class="btn btn-secondary">Abbrechen</a>
           <button type="submit" class="btn btn-primary">
             <%= typeof record !== 'undefined' ? 'Änderungen speichern' : 'Speichern' %>
           </button>
@@ -70,38 +70,7 @@
   </div>
 </div>
 
-<script>
-  const hostnameInput = document.getElementById('hostname');
-  const ttlSelect = document.getElementById('ttl');
-  const destinationInput = document.getElementById('destination');
-  const priorityInput = document.getElementById('priority');
-  const previewRecord = document.getElementById('previewRecord');
-
-  function updatePreview() {
-    const domain = "<%= domain %>";
-    const hostname = hostnameInput.value.trim();
-    const destination = destinationInput.value.trim() || 'mx01.beispiel.de';
-    const priority = priorityInput.value.trim() || '10';
-    const ttl = ttlSelect.value;
-
-    if (hostname) {
-      previewRecord.textContent = `${hostname}.${domain} ${ttl} IN MX ${priority} ${destination}`;
-    } else {
-      previewRecord.textContent = `${domain} ${ttl} IN MX ${priority} ${destination}`;
-    }
-  }
-
-  hostnameInput.addEventListener('input', updatePreview);
-  ttlSelect.addEventListener('change', updatePreview);
-  destinationInput.addEventListener('input', updatePreview);
-  priorityInput.addEventListener('input', updatePreview);
-
-  document.querySelector('.btn-secondary').addEventListener('click', function(e) {
-    e.preventDefault();
-    window.history.back();
-  });
-
-  updatePreview();
-</script>
+<script src="/js/MX-record.js"></script>
+<script src="/js/history-back.js"></script>
 
 <%- include('../partials/footer') -%>
