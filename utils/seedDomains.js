@@ -3,19 +3,21 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { API_GET_DOMAINS } = require("./API_GET_DOMAINS");
 
+const ADMIN_USER_EMAIL = process.env.ADMIN_USER_EMAIL || ""
+
 async function seedDomains() {
   const apiDomains = await API_GET_DOMAINS();
 
   try {
     // Wir gehen davon aus, dass es bereits einen Admin gibt,
     // der als Besitzer der Domain-Einträge verwendet wird.
-    // Hier suchen wir beispielsweise nach einem User mit der E-Mail 'admin@test.de'
+    // Hier suchen wir nach dem in environment definierten Admin-User.
     const adminUser = await prisma.user.findUnique({
-      where: { email: "admin@test.de" },
+      where: { email: ADMIN_USER_EMAIL },
     });
 
     if (!adminUser) {
-      console.error("Admin-User nicht gefunden. Bitte lege zuerst einen Admin-User an.");
+      console.error(`Admin-User nicht gefunden. Bitte lege zuerst einen Admin-User an. mail: ${ADMIN_USER_EMAIL}`);
       return;
     }
 
