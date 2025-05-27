@@ -2,6 +2,7 @@
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
+const seedDomains = require("../utils/seedDomains");
 
 // Liste aller Nutzer (inkl. zugewiesener Domains)
 exports.getListUsers = async (req, res) => {
@@ -122,5 +123,18 @@ exports.postEditUser = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Fehler beim Aktualisieren des Nutzers");
+  }
+};
+
+exports.seedDomains = async (req, res) => {
+  try {
+    console.log("Starte Domain-Seeding…");
+    await seedDomains();
+    console.log("Domain-Seeding abgeschlossen.");
+    // Optional: mit Flash-Message o. Ä. arbeiten
+    res.redirect("/fqdn");
+  } catch (err) {
+    console.error("Fehler beim Domain-Seeding:", err);
+    res.status(500).send("Fehler beim Synchronisieren der Domains");
   }
 };

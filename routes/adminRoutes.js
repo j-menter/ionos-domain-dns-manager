@@ -11,6 +11,7 @@ process.env.NODE_ENV === "development" ? "" : router.use(isAuthenticated, isAdmi
 
 // Nutzerliste anzeigen
 router.get("/", adminController.getListUsers);
+router.get("/seedDomains", adminController.seedDomains);
 
 // Formular zum Erstellen eines neuen Nutzers anzeigen
 router.get("/users/create", adminController.getCreateUserForm);

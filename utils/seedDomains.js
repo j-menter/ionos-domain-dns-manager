@@ -57,3 +57,4 @@ async function seedDomains() {
 }
 
 seedDomains();
+module.exports = seedDomains;
