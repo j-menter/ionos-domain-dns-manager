@@ -3,7 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { API_GET_DOMAINS } = require("./API_GET_DOMAINS");
 
-const ADMIN_USER_EMAIL = process.env.ADMIN_USER_EMAIL || ""
+const ADMIN_USER_EMAIL = process.env.ADMIN_USER_EMAIL || "";
 
 async function seedDomains() {
   const apiDomains = await API_GET_DOMAINS();
